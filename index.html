@@ -9,7 +9,14 @@
     <container ng-controller="mtCtrl as $ctrl" class="container">
       <container class="title"><h1>{{$ctrl.title}}</h1></container>
       <container class="menu">Menu</container>
-      <container class="content">Content</container>
+      <container class="content">
+        <div>
+          <h3>Example Unit</h3>
+          <div>
+            <pre>{{$ctrl.exampleUnit | json}}</pre>
+          </div>
+        </div>
+      </container>
       <container class="output">Output</container>
     </container>
     <script src="mobius-test.js"></script>
