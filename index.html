@@ -6,24 +6,12 @@
     <script src="lodash.js"></script>
   </head>
   <body ng-app="mobius-test">
-    <div ng-controller="mtCtrl as $ctrl">
-      <h1>{{$ctrl.title}}</h1>
-      <button ng-click="$ctrl.start()">Start</button>
-      <h3>Output</h3>
-      <table>
-        <tr ng-repeat="state in $ctrl.output">
-          <td>{{$index}}</td>
-          <td ng-repeat="hole in state.holes" class="{{hole.peg.color}}">{{hole.peg.label}}</td>
-        </tr>
-      </table>
-      <h3>Solution</h3>
-      <table>
-        <tr ng-repeat="state in $ctrl.solutionOutput">
-          <td>{{$index}}</td>
-          <td ng-repeat="hole in state.holes" class="{{hole.peg.color}}">{{hole.peg.label}}</td>
-        </tr>
-      </table>
-    </div>
+    <container ng-controller="mtCtrl as $ctrl" class="container">
+      <container class="title"><h1>{{$ctrl.title}}</h1></container>
+      <container class="menu">Menu</container>
+      <container class="content">Content</container>
+      <container class="output">Output</container>
+    </container>
     <script src="mobius-test.js"></script>
   </body>
 </html>
