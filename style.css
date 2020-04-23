@@ -1,0 +1,26 @@
+td {
+  border: 1px solid black;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  vertical-align: center;
+  margin-bottom: 10px;
+}
+
+tr {
+  margin-bottom: 10px;
+}
+
+.blue {
+  background-color: blue;
+}
+
+.red {
+  background-color: red;
+}
+
+.empty {
+  background-color: white;
+}
