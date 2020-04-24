@@ -32,5 +32,7 @@
         red: angular.fromJson($ctrl.redExample)
       };
     };
+
+    $ctrl.startCombat = function() {};
   }
 })();
