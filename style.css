@@ -20,6 +20,8 @@ container {
   grid-row: 2 / span 1;
   border: 1px solid black;
   padding: 5px;
+  overflow-x: hidden;
+  overflow-y: visible;
 }
 
 .content {
