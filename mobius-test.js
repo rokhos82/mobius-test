@@ -3,10 +3,23 @@
 
   app.controller("mtCtrl",["$scope",controller]);
 
+  var outputItem = {
+    klass: "log-entry-info",
+    text: "Test"
+  };
+
+  function log(text,klass) {
+    var entry = _.clone(outputItem);
+    entry.text = text;
+    entry.klass = _.isString(klass) ? klass : "log-entry-info";
+    return entry;
+  }
+
   function controller() {
     var $ctrl = this;
 
-    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop"
+    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop";
+    $ctrl.output = [];
 
     $ctrl.exampleUnit = {
       "name": "Red One 1",
@@ -33,6 +46,9 @@
       };
     };
 
-    $ctrl.startCombat = function() {};
+    $ctrl.startCombat = function() {
+      $ctrl.output.push(log("Starting combat"));
+      $ctrl.output.push(log("Another line","log-entry-warn"))
+    };
   }
 })();

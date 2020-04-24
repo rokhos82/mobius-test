@@ -7,7 +7,7 @@
   </head>
   <body ng-app="mobius-test">
     <container ng-controller="mtCtrl as $ctrl" class="container">
-      <container class="title"><h1>{{$ctrl.title}}</h1></container>
+      <container class="title"><h2>{{$ctrl.title}}</h2></container>
       <container class="menu">
         <h4>Example Unit</h4>
         <pre>{{$ctrl.exampleUnit | json}}</pre>
@@ -22,10 +22,12 @@
           <unit-card ng-repeat="unit in $ctrl.groups.red.units" unit="unit"></unit-card>
         </div>
         <div>
-          <button ng-click="">Start Combat</button>
+          <button ng-click="$ctrl.startCombat()">Start Combat</button>
         </div>
       </container>
-      <container class="output">Output</container>
+      <container class="output">
+        <div ng-repeat="entry in $ctrl.output" class="{{entry.klass}}">{{entry.text}}</div>
+      </container>
     </container>
     <script src="mobius-test.js"></script>
     <script src="components/unitCard.js"></script>
