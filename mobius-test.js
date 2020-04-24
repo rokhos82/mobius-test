@@ -15,6 +15,8 @@
     return entry;
   }
 
+  var combat = {};
+
   function controller() {
     var $ctrl = this;
 
@@ -46,9 +48,21 @@
       };
     };
 
+    $ctrl.$on = function() {};
+
     $ctrl.startCombat = function() {
       $ctrl.output.push(log("Starting combat"));
-      $ctrl.output.push(log("Another line","log-entry-warn"))
+
+      // Pre combat prep
+      var environment = setupCombat($ctrl.groups);
+
+      // Start the main combat loop
+
+      // Finish up combat logs
     };
+
+    function setupCombat(groups) {
+      $ctrl.output.push(log("Setting up combat"));
+    }
   }
 })();

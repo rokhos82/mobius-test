@@ -19,7 +19,7 @@ container {
   grid-column: 1 / span 3;
   grid-row: 1 / span 1;
   border: 1px solid black;
-  padding: 5px;
+  padding: 10px 5px;
   background-color: darkgrey;
   align-self: center;
 }
@@ -91,6 +91,8 @@ container {
   padding: 2px 5px;
   margin: 2px;
   font-family: monospace;
+  border-radius: 3px;
+  border: 1px solid orange;
 }
 
 .log-entry-warn {
@@ -99,4 +101,6 @@ container {
   padding: 2px 5px;
   margin: 2px;
   font-family: monospace;
+  border-radius: 3px;
+  border: 1px solid yellow;
 }
