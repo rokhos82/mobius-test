@@ -37,3 +37,28 @@ container {
   border: 1px solid black;
   padding: 5px;
 }
+
+.unit-card {
+  border: 2px solid black;
+  background-color: #606060;
+  width: 100px;
+  padding: 15px 25px;
+  border-radius: 15px 30px;
+}
+
+.unit-card-name {
+  font-size: 14pt;
+  color: orange;
+}
+
+.unit-card-info {
+  font-size: 12pt;
+  color: orange;
+}
+
+.unit-card-components {
+  list-style-type: none;
+  margin: 0;
+  margin-left: 10px;
+  padding: 0;
+}

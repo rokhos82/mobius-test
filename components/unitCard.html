@@ -1,0 +1,12 @@
+<div class="unit-card">
+  <span class="unit-card-name">{{$ctrl.unit.name}}</span>
+  <span class="unit-card-info">Type: {{$ctrl.unit.type}}</span>
+  <span class="unit-card-info">Size: {{$ctrl.unit.size}}</span>
+  <ul class="unit-card-components">
+    <li ng-repeat="component in $ctrl.unit.components">
+      <span class="unit-card-info">{{component.name}}</span>
+      <span class="unit-card-infO" ng-if="component.health">{{component.health.pool}}</span>
+      <span class="unit-card-info" ng-if="component.attack">{{component.attack.volley}}</span>
+    </li>
+  </ul>
+</div>
