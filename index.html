@@ -17,6 +17,10 @@
             <unit-card unit="$ctrl.exampleUnit"></unit-card>
           </div>
         </div>
+        <div class="unit-list">
+          <unit-card ng-repeat="unit in $ctrl.groups.blue.units" unit="unit"></unit-card>
+          <unit-card ng-repeat="unit in $ctrl.groups.red.units" unit="unit"></unit-card>
+        </div>
       </container>
       <container class="output">Output</container>
     </container>
