@@ -26,6 +26,11 @@
         <div>
           <button ng-click="$ctrl.startCombat()">Start Combat</button>
         </div>
+        <div>
+          <div ng-repeat="turn in $ctrl.combatLog.turns">
+            <div ng-repeat"entry in turn.log" class="{{entry.klass}}">{{entry.text}}</div>
+          </div>
+        </div>
       </container>
       <container class="output">
         <div ng-repeat="entry in $ctrl.output" class="{{entry.klass}}">{{entry.text}}</div>

@@ -22,6 +22,7 @@
 
     $ctrl.title = "Mobius Testbed - CombatEngine Main Loop";
     $ctrl.output = [];
+    $ctrl.combatLog = {};
 
     $ctrl.exampleUnit = {
       "name": "Red One 1",
@@ -57,7 +58,8 @@
       var environment = setupCombat($ctrl.groups);
 
       // Start the main combat loop
-      doCombat(environment);
+      $ctrl.combatLog.turns = doCombat(environment);
+      console.log($ctrl.combatLog);
 
       // Finish up combat logs
     };
@@ -96,6 +98,7 @@
       // Get a list of targets for the red team
       _.forEach(settings.groups.blue.units,function(unit) {
         $ctrl.output.push(log(`Adding unit ${unit.name} to target list`,"log-entry-action"));
+        unit.team = "blue";
         targets.red.push(unit.name);
         targets.master[unit.name] = unit;
       });
@@ -105,6 +108,7 @@
       // Get a list of targets for the blue team
       _.forEach(settings.groups.red.units,function(unit) {
         $ctrl.output.push(log(`Adding unit ${unit.name} to target list`,"log-entry-action"));
+        unit.team = "red";
         targets.blue.push(unit.name);
         targets.master[unit.name] = unit;
       });
@@ -121,6 +125,9 @@
     function doCombat(environment) {
       $ctrl.output.push(log("Begin Combat!","log-entry-important"));
 
+      environment.log = [];
+      environment.attacks = [];
+
       var done = false;
       var count = 0;
       var limit = 10;
@@ -136,27 +143,54 @@
         $ctrl.output.push(log(`Begin Turn ${count}`,"log-entry-important"));
 
         _.forEach(state.targets.master,function(unit) {
-          $ctrl.output.push(log(`Doing something for ${unit.name}`,"log-entry-purple"));
+          var msg = `Doing something for ${unit.name}`;
+          $ctrl.output.push(log(msg,"log-entry-purple"));
+          state.log.push(log(msg,"log-entry-purple"));
           // Need to make this a permanent entry into a combat action log
 
           // Get the list of attacks a unit can make
           var actions = _.filter(unit.components,'attack');
 
           // Choose a target or targets
+          var attacks = [];
           _.forEach(actions,function(a) {
-            $ctrl.output.push(log(`${unit.name} is attacking with ${a.name} for ${a.attack.volley}`,"log-entry-action"));
+            var target = _.sample(state.targets[unit.team]);
+            attacks.push({
+              actor: unit.name,
+              target: target,
+              attack: a.attack,
+              action: a.name
+            });
+            var msg = log(`${unit.name} is targeting ${target}`,"log-entry-action")
+            $ctrl.output.push(msg);
+            state.log.push(msg);
           });
 
-          // Attack said target(s)
+          state.attacks[unit.name] = attacks;
 
+          // Attack said target(s)
+          _.forEach(attacks,function(a) {
+            var dmg = _.random(1,a.attack.volley,false);
+            a.damage = dmg;
+            var msg = log(`${a.actor} is attacking ${a.target} with ${a.action} for ${dmg}`,"log-entry-green");
+            $ctrl.output.push(msg);
+            state.log.push(msg);
+          });
         });
 
         // Do turn cleanup
+        _.forEach(state.attacks,function(set) {
+          // Apply damage as necessary
+        });
+
         combatLog.push(state);
         state = _.cloneDeep(state);
+        state.log = [];
+        state.attacks = [];
       }
 
       $ctrl.output.push(log("End Combat!","log-entry-important"));
+      return combatLog;
     }
   }
 })();
