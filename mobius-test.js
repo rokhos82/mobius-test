@@ -118,12 +118,14 @@
       $ctrl.output.push(log("Building game board"));
     }
 
-    function doCombat(settings) {
+    function doCombat(environment) {
       $ctrl.output.push(log("Begin Combat!","log-entry-important"));
 
       var done = false;
       var count = 0;
       var limit = 10;
+      var state = _.cloneDeep(environment);
+      var combatLog = [];
 
       // Main combat loop
       while(!done) {
@@ -133,9 +135,25 @@
         }
         $ctrl.output.push(log(`Begin Turn ${count}`,"log-entry-important"));
 
-        _.forEach(settings.targets.master,function(unit) {
-          $ctrl.output.push(log(`Doing something for ${unit.name}`,"log-entry-action"));
+        _.forEach(state.targets.master,function(unit) {
+          $ctrl.output.push(log(`Doing something for ${unit.name}`,"log-entry-purple"));
+          // Need to make this a permanent entry into a combat action log
+
+          // Get the list of attacks a unit can make
+          var actions = _.filter(unit.components,'attack');
+
+          // Choose a target or targets
+          _.forEach(actions,function(a) {
+            $ctrl.output.push(log(`${unit.name} is attacking with ${a.name} for ${a.attack.volley}`,"log-entry-action"));
+          });
+
+          // Attack said target(s)
+
         });
+
+        // Do turn cleanup
+        combatLog.push(state);
+        state = _.cloneDeep(state);
       }
 
       $ctrl.output.push(log("End Combat!","log-entry-important"));

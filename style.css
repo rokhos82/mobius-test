@@ -131,3 +131,13 @@ container {
   border-radius: 3px;
   border: 1px solid red;
 }
+
+.log-entry-purple {
+  background-color: #404040;
+  color: plum;
+  padding: 2px 5px;
+  margin: 2px;
+  font-family: monospace;
+  border-radius: 3px;
+  border: 1px solid plum;
+}
