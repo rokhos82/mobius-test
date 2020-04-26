@@ -7,10 +7,12 @@
   </head>
   <body ng-app="mobius-test">
     <container ng-controller="mtCtrl as $ctrl" class="container">
-      <container class="title"><h2>{{$ctrl.title}}</h2></container>
+      <container class="title"><span>{{$ctrl.title}}</span></container>
       <container class="menu">
-        <h4>Example Unit</h4>
+        <h5>Example Unit</h5>
         <pre>{{$ctrl.exampleUnit | json}}</pre>
+        <h5>Example Group</h5>
+        <pre>{{$ctrl.groups | json}}</pre>
       </container>
       <container class="content">
         <h3>Blue Team</h3>

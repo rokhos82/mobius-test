@@ -9,8 +9,8 @@ container {
 
 .container {
   display: grid;
-  grid-template-columns: 250px auto 500px;
-  grid-template-rows: 100px 600px;
+  grid-template-columns: 400px auto 400px;
+  grid-template-rows: 75px 600px;
   column-gap: 5px;
   row-gap: 5px;
 }
@@ -22,6 +22,11 @@ container {
   padding: 10px 5px;
   background-color: darkgrey;
   align-self: center;
+}
+
+.title > span {
+  padding-left: 10px;
+  font-size: 14pt;
 }
 
 .menu {
@@ -49,6 +54,8 @@ container {
   grid-row: 2 / span 1;
   border: 1px solid black;
   padding: 5px;
+  overflow-x: hidden;
+  overflow-y: visible;
   background-color: darkgrey;
 }
 
@@ -103,4 +110,24 @@ container {
   font-family: monospace;
   border-radius: 3px;
   border: 1px solid yellow;
+}
+
+.log-entry-action {
+  background-color: #404040;
+  color: cyan;
+  padding: 2px 5px;
+  margin: 2px;
+  font-family: monospace;
+  border-radius: 3px;
+  border: 1px solid cyan;
+}
+
+.log-entry-important {
+  background-color: #404040;
+  color: red;
+  padding: 2px 5px;
+  margin: 2px;
+  font-family: monospace;
+  border-radius: 3px;
+  border: 1px solid red;
 }

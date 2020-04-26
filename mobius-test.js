@@ -51,18 +51,94 @@
     $ctrl.$on = function() {};
 
     $ctrl.startCombat = function() {
-      $ctrl.output.push(log("Starting combat"));
+      $ctrl.output.push(log("Starting combat simulation"));
 
       // Pre combat prep
       var environment = setupCombat($ctrl.groups);
 
       // Start the main combat loop
+      doCombat(environment);
 
       // Finish up combat logs
     };
 
     function setupCombat(groups) {
       $ctrl.output.push(log("Setting up combat"));
+
+      var settings = {};
+      settings.groups = groups;
+
+      // Prebuilt target lists
+      var targets = buildTargetLists(settings);
+      settings.targets = targets;
+
+      // Setup combat board - and how to handle long range units?
+      setupCombatBoard(settings);
+
+      return settings;
+    }
+
+    function buildTargetLists(settings) {
+      $ctrl.output.push(log("Building target lists"));
+
+      var targets = {
+        red: [],
+        blue: [],
+        master: {}
+      };
+
+      /*
+       *   DO I NEED TO GENERATE A UUID for each unit during each combat?
+       *   I am thinking the answer is yes!
+       *
+       */
+
+      // Get a list of targets for the red team
+      _.forEach(settings.groups.blue.units,function(unit) {
+        $ctrl.output.push(log(`Adding unit ${unit.name} to target list`,"log-entry-action"));
+        targets.red.push(unit.name);
+        targets.master[unit.name] = unit;
+      });
+
+      settings.groups.blue.targets = targets.blue;
+
+      // Get a list of targets for the blue team
+      _.forEach(settings.groups.red.units,function(unit) {
+        $ctrl.output.push(log(`Adding unit ${unit.name} to target list`,"log-entry-action"));
+        targets.blue.push(unit.name);
+        targets.master[unit.name] = unit;
+      });
+
+      settings.groups.red.targets = targets.red;
+
+      return targets;
+    }
+
+    function setupCombatBoard(settings) {
+      $ctrl.output.push(log("Building game board"));
+    }
+
+    function doCombat(settings) {
+      $ctrl.output.push(log("Begin Combat!","log-entry-important"));
+
+      var done = false;
+      var count = 0;
+      var limit = 10;
+
+      // Main combat loop
+      while(!done) {
+        count++;
+        if(count >= limit) {
+          done = true;
+        }
+        $ctrl.output.push(log(`Begin Turn ${count}`,"log-entry-important"));
+
+        _.forEach(settings.targets.master,function(unit) {
+          $ctrl.output.push(log(`Doing something for ${unit.name}`,"log-entry-action"));
+        });
+      }
+
+      $ctrl.output.push(log("End Combat!","log-entry-important"));
     }
   }
 })();
