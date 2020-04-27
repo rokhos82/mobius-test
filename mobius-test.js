@@ -296,7 +296,7 @@ Blue One 1,14,14,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
         _.forEach(state.attacks,function(attack) {
           // Apply damage as necessary
           if(attack.damage) {
-            var target = state.targets.master[attack.actor];
+            var target = state.targets.master[attack.target];
             // Get all health pools
             var pools = target.pools;
             var remainder = attack.damage;
@@ -322,7 +322,9 @@ Blue One 1,14,14,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
           }
         });
 
-        _.forEach(state.targets.master,function(unit) {
+        var removal = [];
+        _.forEach(state.targets.active,function(u) {
+          var unit = state.targets.master[u];
           var stats = unitStats(unit);
           var msg = log(`${unit.name} has ${stats.hull} hull`);
           $ctrl.output.push(msg);
@@ -333,7 +335,8 @@ Blue One 1,14,14,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
             $ctrl.output.push(msg);
             state.log.push(msg);
 
-            state.targets.active = _.pull(state.targets.active,unit.name);
+            //state.targets.active = _.pull(state.targets.active,unit.name);
+            removal.push(u);
 
             // Remove the unit from the target lists
             if(unit.team === "blue") {
@@ -347,6 +350,7 @@ Blue One 1,14,14,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
             }
           }
         });
+        _.pullAll(state.targets.active,removal);
 
         combatLog.push(state);
         state = _.cloneDeep(state);
