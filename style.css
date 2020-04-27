@@ -177,3 +177,7 @@ container {
   border-radius: 3px;
   border: 1px solid limegreen;
 }
+
+.log-entry-hover:hover {
+  background-color: grey;
+}

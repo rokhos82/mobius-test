@@ -266,13 +266,13 @@ Blue One 1,14,14,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
 
             def = def + target.effects.defense;
             a.def = def;
-            var msg = log(`${target.name} rolled a def roll of ${def} (${target.effects.defense})`);
+            var msg = log(`${actor.name} rolled a def roll of ${def} (${target.effects.defense})`);
             $ctrl.output.push(msg);
             state.log.push(msg);
 
             if(hit > def) {
               // Yay a hit!
-              msg = log(`${target.name} successfully hit ${target.name}`);
+              msg = log(`${actor.name} successfully hit ${target.name}`);
               $ctrl.output.push(msg);
               state.log.push(msg);
 
