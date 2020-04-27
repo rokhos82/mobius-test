@@ -346,7 +346,7 @@
     function deathCheck(unit) {
       var ded = false;
 
-      if(_.reverse(unit.pools)[0].remaining <= 0) {
+      if(_.last(unit.pools).remaining <= 0) {
         ded = true;
       }
 
