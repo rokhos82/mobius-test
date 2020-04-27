@@ -133,16 +133,39 @@
       var unit = data.unit;
       var team = data.team;
 
+      // Set the team for the unit
       unit.team = team;
 
+      // Add the team to the correct target list and the master unit list
       data.targets.push(unit.name);
       data.units[unit.name] = unit;
 
+      // Setup the aggregate effects object
+      unit.effects = {
+        defense: 0
+      };
+
+      // Setup the aggregate health pools object
+      unit.pools = [];
+
+      // Assign defaults to components that need them
+      // Also compute aggregate values for some tags like DEFENSE
       _.forEach(unit.components,function(c) {
         if(_.has(c,'attack')) {
           c.attack.target = _.isNumber(c.attack.target) ? c.attack.target : 0;
         }
+        if(_.has(c,'effects.defense')) {
+          unit.effects.defense += c.effects.defense;
+        }
+        if(_.has(c,'health')) {
+          c.health.remaining = c.health.pool;
+          unit.pools.push(c.health);
+        }
       });
+
+      // Sort by priority then pool size.  Then reverse the order so that
+      // higher priority pools are listed first.
+      unit.pools = _.reverse(_.sortBy(unit.pools,['priority','pool']));
     }
 
     function setupCombatBoard(settings) {
@@ -192,7 +215,7 @@
             state.log.push(msg);
           });
 
-          state.attacks[unit.name] = attacks;
+          state.attacks = _.concat(state.attacks,attacks);
 
           // Attack said target(s)
           _.forEach(attacks,function(a) {
@@ -203,38 +226,131 @@
             var actor = state.targets.master[a.actor];
             var target = state.targets.master[a.target];
             var attack = _.filter(actor.components,['name',a.action])[0].attack;
-            console.info(attack);
 
+            // I should determine target here not earlier....the earlier loop is unnecessary!
             var msg = log(`${a.actor} is attacking ${a.target} with ${a.action}`,"log-entry-green");
             $ctrl.output.push(msg);
             state.log.push(msg);
 
             hit = hit + attack.target;
+            a.hit = hit;
             var msg = log(`${actor.name} rolled a hit roll of ${hit} (${attack.target})`);
             $ctrl.output.push(msg);
             state.log.push(msg);
 
-            var dmg = _.random(1,attack.volley,false);
-            a.damage = dmg;
-            var msg = log(`${a.actor} did ${dmg} damage`,"log-entry-green");
+            def = def + target.effects.defense;
+            a.def = def;
+            var msg = log(`${target.name} rolled a def roll of ${def} (${target.effects.defense})`);
             $ctrl.output.push(msg);
             state.log.push(msg);
+
+            if(hit > def) {
+              // Yay a hit!
+              msg = log(`${target.name} successfully hit ${target.name}`);
+              $ctrl.output.push(msg);
+              state.log.push(msg);
+
+              // Roll damage
+              var dmg = _.random(1,attack.volley,false);
+              a.damage = dmg;
+              var msg = log(`${a.actor} did ${dmg} damage`,"log-entry-green");
+              $ctrl.output.push(msg);
+              state.log.push(msg);
+            }
+            else {
+              // Slippery little devil
+              msg = log(`${actor.name} did not hit ${target.name}`,"log-entry-warn");
+              $ctrl.output.push(msg);
+              state.log.push(msg);
+            }
           });
         });
 
         // Do turn cleanup
-        _.forEach(state.attacks,function(set) {
+        _.forEach(state.attacks,function(attack) {
           // Apply damage as necessary
+          if(attack.damage) {
+            var target = state.targets.master[attack.actor];
+            // Get all health pools
+            var pools = target.pools;
+            var remainder = attack.damage;
+            // If there are any hitpoints left in a pool, apply damage
+            _.forEach(pools,function(p) {
+              if(remainder > 0 && p.remaining > 0) {
+                // There is damage left and the pool has hitpoints apply it
+                p.remaining -= remainder;
+
+                // If the pool allows for transfer, reset the remainder value
+                remainder = p.transfer ? -p.remainder : 0;
+              }
+            });
+          }
+        });
+
+        _.forEach(state.targets.master,function(unit) {
+          var stats = unitStats(unit);
+          var msg = log(`${unit.name} has ${stats.hull} hull`);
+          $ctrl.output.push(msg);
+          state.log.push(msg);
+
+          if(deathCheck(unit)) {
+            var msg = log(`${unit.name} has been destroyed`,"log-entry-important");
+            $ctrl.output.push(msg);
+            state.log.push(msg);
+
+            // Remove the unit from the target lists
+            if(unit.team === "blue") {
+              state.targets.red = _.pull(state.targets.red,unit.name);
+            }
+            else if(unit.team === "red") {
+              state.targets.blue = _.pull(state.targets.blue,unit.name);
+            }
+            else {
+              console.error("Well shit");
+            }
+          }
         });
 
         combatLog.push(state);
         state = _.cloneDeep(state);
         state.log = [];
         state.attacks = [];
+        done = gameOver(state);
       }
 
       $ctrl.output.push(log("End Combat!","log-entry-important"));
       return combatLog;
+    }
+
+    function unitStats(unit) {
+      var stats = {};
+
+      var hp = _.filter(unit.components,'health');
+      _.forEach(hp,function(h) {
+        stats[h.name] = _.has(stats,h.name) ? stats[h.name] + h.health.remaining : h.health.remaining;
+      });
+
+      return stats;
+    }
+
+    function deathCheck(unit) {
+      var ded = false;
+
+      if(_.reverse(unit.pools)[0].remaining <= 0) {
+        ded = true;
+      }
+
+      return ded;
+    }
+
+    function gameOver(state) {
+      var done = false;
+
+      if(state.targets.red.length == 0 || state.targets.blue.length == 0) {
+        done = true;
+      }
+
+      return done;
     }
   }
 })();
