@@ -178,6 +178,7 @@ Blue One 1,14,14,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
       _.forEach(unit.components,function(c) {
         if(_.has(c,'attack')) {
           c.attack.target = _.isNumber(c.attack.target) ? c.attack.target : 0;
+          c.attack.yield = _.isNumber(c.attack.yield) ? c.attack.yield : 0;
         }
         if(_.has(c,'effects.defense')) {
           unit.effects.defense += c.effects.defense;
@@ -277,7 +278,10 @@ Blue One 1,14,14,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
               state.log.push(msg);
 
               // Roll damage
-              var dmg = _.random(1,attack.volley,false);
+              var dmgRoll = _.random(1,1000,false) + attack.yield;
+              dmgRoll = dmgRoll > 1000 ? 1000 : dmgRoll;
+              dmgRoll = dmgRoll < 0 ? 0 : dmgRoll;
+              var dmg = _.round(attack.volley * dmgRoll / 1000);
               a.damage = dmg;
               var msg = log(`${a.actor} did ${dmg} damage`,"log-entry-green");
               $ctrl.output.push(msg);
@@ -326,7 +330,7 @@ Blue One 1,14,14,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
         _.forEach(state.targets.active,function(u) {
           var unit = state.targets.master[u];
           var stats = unitStats(unit);
-          var msg = log(`${unit.name} has ${stats.hull} hull`);
+          var msg = log(`${unit.name} has ${stats.hull} hull and ${stats.shield} shields`);
           $ctrl.output.push(msg);
           state.log.push(msg);
 
