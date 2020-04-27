@@ -1,12 +1,24 @@
-<div class="unit-card">
-  <span class="unit-card-name">{{$ctrl.unit.name}}</span>
-  <span class="unit-card-info">Type: {{$ctrl.unit.type}}</span>
-  <span class="unit-card-info">Size: {{$ctrl.unit.size}}</span>
-  <ul class="unit-card-components">
-    <li ng-repeat="component in $ctrl.unit.components">
-      <span class="unit-card-info">{{component.name}}</span>
-      <span class="unit-card-infO" ng-if="component.health">{{component.health.pool}}</span>
-      <span class="unit-card-info" ng-if="component.attack">{{component.attack.volley}}</span>
-    </li>
-  </ul>
+<div class="unit-card unit-card-container">
+  <div class="unit-card-name unit-card-item">{{$ctrl.unit.name}}</div>
+  <div class="unit-card-info unit-card-item">Type: {{$ctrl.unit.type}}</div>
+  <div class="unit-card-info unit-card-item">Size: {{$ctrl.unit.size}}</div>
+  <div ng-repeat="component in $ctrl.unit.components">
+    <div class="unit-card-info unit-card-item">{{component.name}}</div>
+    <div class="unit-card-item" ng-if="component.health">
+      <div class="unit-card-info unit-card-item">{{component.health.pool}}</div>
+      <div class="unit-card-info unit-card-item">{{component.health.priority}}</div>
+    </div>
+  </div>
+    <!--<ul class="unit-card-components">
+      <li ng-repeat="component in $ctrl.unit.components">
+        <span class="unit-card-info">{{component.name}}</span>
+        <ul ng-if="component.health" class="unit-card-components">
+          <li>
+            <span class="unit-card-infO">pool {{component.health.pool}}</span>
+            <span class="unit-card-info">priority {{component.health.priority}}</span>
+          </li>
+        </ul>
+        <span class="unit-card-info" ng-if="component.attack">{{component.attack.volley}}</span>
+      </li>
+    </ul>-->
 </div>

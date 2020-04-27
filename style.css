@@ -43,7 +43,7 @@ container {
   grid-column: 2 / span 1;
   grid-row: 2 / span 1;
   border: 2px solid black;
-  padding: 5px;
+  padding: 10px;
   overflow-x: hidden;
   overflow-y: visible;
   background-color: darkgrey;
@@ -69,8 +69,9 @@ container {
 .unit-card {
   border: 2px solid orange;
   background-color: dimgrey;
-  width: 100px;
-  padding: 15px 25px;
+  width: 200px;
+  height: 200px;
+  padding: 10px 20px;
   border-radius: 15px 30px;
   margin-right: 10px;
 }
@@ -83,6 +84,7 @@ container {
 .unit-card-info {
   font-size: 12pt;
   color: orange;
+  margin: 2px;
 }
 
 .unit-card-components {
@@ -90,6 +92,18 @@ container {
   margin: 0;
   margin-left: 10px;
   padding: 0;
+}
+
+.unit-card-container {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+}
+
+.unit-card-item {
+  display: block;
+  margin: 2px;
+  padding-left: 5px;
 }
 
 .log-entry-info {
