@@ -9,6 +9,8 @@
     <container ng-controller="mtCtrl as $ctrl" class="container">
       <container class="title"><span>{{$ctrl.title}}</span></container>
       <container class="menu">
+        <h5>Parsed UDL</h5>
+        <pre>{{$ctrl.parsedExample | json}}</pre>
         <h5>Example Unit</h5>
         <pre>{{$ctrl.exampleUnit | json}}</pre>
         <h5>Example Group</h5>
@@ -36,6 +38,9 @@
         <div ng-repeat="entry in $ctrl.output" class="{{entry.klass}}">{{entry.text}}</div>
       </container>
     </container>
+    <script src="modules/mobius.helper/mobius.helper.js"></script>
+    <script src="modules/mobius.helper/unitFactory.js"></script>
+    <script src="modules/mobius.helper/udlParser.js"></script>
     <script src="mobius-test.js"></script>
     <script src="components/unitCard.js"></script>
   </body>

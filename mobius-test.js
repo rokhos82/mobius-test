@@ -1,7 +1,7 @@
 (function() {
-  var app = angular.module("mobius-test",[]);
+  var app = angular.module("mobius-test",["mobius.helper"]);
 
-  app.controller("mtCtrl",["$scope",controller]);
+  app.controller("mtCtrl",["$scope","mobius.helper.udlParser",controller]);
 
   var outputItem = {
     klass: "log-entry-info",
@@ -17,12 +17,15 @@
 
   var combat = {};
 
-  function controller() {
+  function controller($scope,udlParser) {
     var $ctrl = this;
 
     $ctrl.title = "Mobius Testbed - CombatEngine Main Loop";
     $ctrl.output = [];
     $ctrl.combatLog = {};
+
+    $ctrl.udl = "Red One 1,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15";
+    $ctrl.parsedExample = udlParser.parseFots($ctrl.udl);
 
     $ctrl.exampleUnit = {
       "name": "Red One 1",
