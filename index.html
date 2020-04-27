@@ -18,10 +18,18 @@
       </container>
       <container class="content">
         <h3>Blue Team</h3>
+        <div class="fleet-input">
+          <button ng-click="$ctrl.parseFleet('blue',$ctrl.blueFleetUdl)">Import Fleet File</button>
+          <textarea ng-model="$ctrl.blueFleetUdl"></textarea>
+        </div>
         <div class="unit-list">
           <unit-card ng-repeat="unit in $ctrl.groups.blue.units" unit="unit"></unit-card>
         </div>
         <h3>Red Team</h3>
+        <div class="fleet-input">
+          <button ng-click="$ctrl.parseFleet('red',$ctrl.redFleetUdl)">Import Fleet File</button>
+          <textarea ng-model="$ctrl.redFleetUdl"></textarea>
+        </div>
         <div class="unit-list">
           <unit-card ng-repeat="unit in $ctrl.groups.red.units" unit="unit"></unit-card>
         </div>

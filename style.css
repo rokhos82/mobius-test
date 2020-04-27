@@ -59,6 +59,18 @@ container {
   background-color: darkgrey;
 }
 
+.fleet-input > button {
+  display: block;
+  margin: 2px 0px;
+}
+
+.fleet-input > textarea {
+  display: block;
+  margin: 2px 0px;
+  width: 100%;
+  height: 100px;
+}
+
 .unit-list {
   display: flex;
   justify-content: flex-start;

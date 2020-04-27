@@ -32,7 +32,6 @@ Red One 1,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15
 Red One 2,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15
 Red One 3,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
     $ctrl.parseFleet = fleetParser.parseFots($ctrl.fleetUdl);
-    console.info($ctrl.praseFleet);
 
     $ctrl.exampleUnit = {
       "name": "Red One 1",
@@ -63,14 +62,15 @@ Blue One 1,14,14,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
     $ctrl.$onInit = function() {
       $ctrl.groups = {
         //blue: angular.fromJson($ctrl.blueExample),
-        blue: fleetParser.parseFots($ctrl.blueFleetUdl),
+        //blue: fleetParser.parseFots($ctrl.blueFleetUdl),
         //red: angular.fromJson($ctrl.redExample)
-        red: fleetParser.parseFots($ctrl.redFleetUdl)
+        //red: fleetParser.parseFots($ctrl.redFleetUdl)
       };
-      console.info($ctrl.groups);
     };
 
-    $ctrl.$on = function() {};
+    $ctrl.parseFleet = function(team,str) {
+      $ctrl.groups[team] = fleetParser.parseFots(str);
+    };
 
     $ctrl.startCombat = function() {
       $ctrl.output = [];
