@@ -52,6 +52,7 @@
     $ctrl.$on = function() {};
 
     $ctrl.startCombat = function() {
+      $ctrl.output = [];
       $ctrl.output.push(log("Starting combat simulation"));
 
       // Pre combat prep
@@ -278,10 +279,19 @@
             _.forEach(pools,function(p) {
               if(remainder > 0 && p.remaining > 0) {
                 // There is damage left and the pool has hitpoints apply it
-                p.remaining -= remainder;
+                if(p.remaining > remainder) {
+                  p.remaining -= remainder;
+                  remainder = 0;
+                }
+                else {
+                  remainder -= p.remaining;
+                  p.remaining = 0;
+                }
 
                 // If the pool allows for transfer, reset the remainder value
-                remainder = p.transfer ? -p.remainder : 0;
+                if(!p.transfer) {
+                  remainder = 0;
+                }
               }
             });
           }
