@@ -1,7 +1,7 @@
 (function() {
   var app = angular.module("mobius-test",["mobius.helper"]);
 
-  app.controller("mtCtrl",["$scope","mobius.helper.udlParser",controller]);
+  app.controller("mtCtrl",["$scope","mobius.helper.udlParser","mobius.helper.fleetParser",controller]);
 
   var outputItem = {
     klass: "log-entry-info",
@@ -17,7 +17,7 @@
 
   var combat = {};
 
-  function controller($scope,udlParser) {
+  function controller($scope,udlParser,fleetParser) {
     var $ctrl = this;
 
     $ctrl.title = "Mobius Testbed - CombatEngine Main Loop";
@@ -26,6 +26,13 @@
 
     $ctrl.udl = "Red One 1,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15";
     $ctrl.parsedExample = udlParser.parseFots($ctrl.udl);
+
+    $ctrl.fleetUdl = `The Big Ones,1,2,3,4
+Red One 1,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15
+Red One 2,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15
+Red One 3,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
+    $ctrl.parseFleet = fleetParser.parseFots($ctrl.fleetUdl);
+    console.info($ctrl.praseFleet);
 
     $ctrl.exampleUnit = {
       "name": "Red One 1",
@@ -45,11 +52,22 @@
 
     $ctrl.blueExample = `{"name":"Blue Two","units":[{"name": "Blue Two 1","size": 6,"type": "starship","components": [{"name": "hull","crit": "unitBase","health": {"pool": 9,"priority": 1},"presence": {"magnitude": 6,"channel": 1}},{"name": "shield","crit": "shield","health": {"pool": 2,"priority": 2,"transfer": false},"energy": {"draw": 2}},{"name": "beam 1","crit": "battery","attack": {"volley": 7,"target": 350},"energy": {"draw": 7}},{"name": "beam 2","crit": "battery","attack": {"volley": 7,"target": 350},"energy": {"draw": 7}},{"name": "stl","crit": "engine","effects": {"defense": 150}},{"name": "lrs","crit": "sensor","sensor": {"strength": 1,"channel": 1,"resolution": 1},"energy": {"draw": 1}},{"name": "reactor","crit": "powerPlant","energy": {"capacity": 72}}]}]}`;
 
+    $ctrl.redFleetUdl = `Red 1,1,2,3,4
+Red One 1,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
+Red One 2,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
+Red One 3,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15`;
+
+    $ctrl.blueFleetUdl = `Blue 2,1,2,3,4
+Blue One 1,14,14,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
+
     $ctrl.$onInit = function() {
       $ctrl.groups = {
-        blue: angular.fromJson($ctrl.blueExample),
-        red: angular.fromJson($ctrl.redExample)
+        //blue: angular.fromJson($ctrl.blueExample),
+        blue: fleetParser.parseFots($ctrl.blueFleetUdl),
+        //red: angular.fromJson($ctrl.redExample)
+        red: fleetParser.parseFots($ctrl.redFleetUdl)
       };
+      console.info($ctrl.groups);
     };
 
     $ctrl.$on = function() {};

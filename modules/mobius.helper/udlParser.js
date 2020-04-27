@@ -2,13 +2,12 @@
   /*  udlParser - converts old-school FOTS unit description lines (UDLs) to a more useful format.
    *
    */
-  function factoryCtrl(unitFactory) {
+  function factoryCtrl(objectFactory) {
     var services = {};
 
     services.parseFots = function(udl) {
       // Split the UDL by the 'commas'
       var rawParts = _.split(udl,",");
-      console.info(rawParts);
 
       if(rawParts.length != 13) {
         console.error("Incorrect UDL");
@@ -23,11 +22,9 @@
 
         // Get the parts of the tags string that are bracketed
         var brackets = parts.tags.match(/\[.*?\]/g);
-        console.info(brackets);
 
         // Get everything after the last bracket
         var nonBracket = _.trim(parts.tags.slice(parts.tags.lastIndexOf("]")+1));
-        console.info(nonBracket);
 
         // Extract information from the non-bracketed tags
         if(nonBracket.indexOf("DEFENSE") >= 0) {
@@ -46,24 +43,13 @@
           parts.resist = _.parseInt(nonBracket.match(/(?:AR\s+)(?<resist>\d+)(?:\s*)/).groups.resist);
         }
 
-        console.info(parts);
-
         // Fill out a unit object
-        var u = unitFactory.new();
+        var u = objectFactory.newUnit();
 
         u.name = parts.name;
         u.size = parts.hull;
 
-        /*var engine = unitFactory.newComponent();
-        engine.name = "stl";
-        engine.crit = "engine";
-        engine.effects = {};
-        if(parts.defense > 0) {
-          engine.effects.defense = parts.defense * 10;
-        }
-        u.components.push(engine);*/
-
-        var hull = unitFactory.newComponent();
+        var hull = objectFactory.newComponent();
         hull.name = "hull";
         hull.crit = "unitBase";
         hull.health = {
@@ -81,7 +67,7 @@
         u.components.push(hull);
 
         if(parts.shields > 0) {
-          var shield = unitFactory.newComponent();
+          var shield = objectFactory.newComponent();
           shield.name = "shield",
           shield.crit = "shield",
           shield.health = {
@@ -92,7 +78,7 @@
         }
 
         _.forEach(brackets,function(bracket) {
-          var c = unitFactory.newComponent();
+          var c = objectFactory.newComponent();
           c.name = "attack";
           c.crit = "battery";
           c.attack = {};
@@ -103,8 +89,6 @@
           u.components.push(c);
         });
 
-        console.info(u);
-
         return u;
       }
     };
@@ -112,7 +96,7 @@
     return services;
   }
 
-  factoryCtrl.$inject = ["mobius.helper.unitFactory"];
+  factoryCtrl.$inject = ["mobius.helper.objectFactory"];
 
   angular.module("mobius.helper").factory("mobius.helper.udlParser",factoryCtrl);
 })();

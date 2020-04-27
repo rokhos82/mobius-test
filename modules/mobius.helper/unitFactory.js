@@ -19,7 +19,12 @@
       crit: ""
     };
 
-    services.new = function() {
+    var fleetObject = {
+      name: "",
+      units: []
+    };
+
+    services.newUnit = function() {
       return _.cloneDeep(unitObject);
     };
 
@@ -27,10 +32,14 @@
       return _.cloneDeep(componentObject);
     };
 
+    services.newFleet = function() {
+      return _.cloneDeep(fleetObject);
+    };
+
     return services;
   }
 
   factoryCtrl.$inject = []
 
-  angular.module("mobius.helper").factory("mobius.helper.unitFactory",factoryCtrl);
+  angular.module("mobius.helper").factory("mobius.helper.objectFactory",factoryCtrl);
 })();
