@@ -108,7 +108,8 @@ Blue One 1,14,14,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
       var targets = {
         red: [],
         blue: [],
-        master: {}
+        master: {},
+        active: []
       };
 
       /*
@@ -126,6 +127,7 @@ Blue One 1,14,14,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
           targets: targets.red,
           units: targets.master
         });
+        targets.active.push(unit.name);
       });
 
       settings.groups.blue.targets = targets.blue;
@@ -139,6 +141,7 @@ Blue One 1,14,14,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
           targets: targets.blue,
           units: targets.master
         });
+        targets.active.push(unit.name);
       });
 
       settings.groups.red.targets = targets.red;
@@ -214,7 +217,8 @@ Blue One 1,14,14,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
         }
         $ctrl.output.push(log(`Begin Turn ${count}`,"log-entry-important"));
 
-        _.forEach(state.targets.master,function(unit) {
+        _.forEach(state.targets.active,function(u) {
+          var unit = state.targets.master[u];
           var msg = `Planning turn for ${unit.name}`;
           $ctrl.output.push(log(msg,"log-entry-purple"));
           state.log.push(log(msg,"log-entry-purple"));
@@ -328,6 +332,8 @@ Blue One 1,14,14,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
             var msg = log(`${unit.name} has been destroyed`,"log-entry-important");
             $ctrl.output.push(msg);
             state.log.push(msg);
+
+            state.targets.active = _.pull(state.targets.active,unit.name);
 
             // Remove the unit from the target lists
             if(unit.team === "blue") {
