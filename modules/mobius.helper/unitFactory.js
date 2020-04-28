@@ -10,8 +10,12 @@
       "size": 0,
       "type": "",
       "components": [],
-      "effects": {},
-      "pools": []
+      "effects": {
+        defense: 0,
+        ar: 0
+      },
+      "pools": [],
+      "attacks": []
     };
 
     var componentObject = {

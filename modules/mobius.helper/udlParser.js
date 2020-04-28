@@ -89,6 +89,9 @@
           if(bracket.indexOf("target") > 0) {
             c.attack.target = _.parseInt(bracket.match(/(?:target\s*)(?<tar>\d+)/).groups.tar) * 10;
           }
+          if(bracket.indexOf("long") > 0) {
+            c.attack.long = true;
+          }
           u.components.push(c);
         });
 
