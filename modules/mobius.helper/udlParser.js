@@ -64,6 +64,9 @@
         if(parts.defense > 0) {
           hull.effects.defense = parts.defense * 10;
         }
+        if(parts.ar > 0) {
+          hull.effects.deflect = parts.ar;
+        }
         u.components.push(hull);
 
         if(parts.shields > 0) {

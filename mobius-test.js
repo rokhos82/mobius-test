@@ -57,7 +57,7 @@ Red One 2,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
 Red One 3,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15`;
 
     $ctrl.blueFleetUdl = `Blue 2,1,2,3,4
-Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
+Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`;
 
     $ctrl.$onInit = function() {
       $ctrl.groups = {
@@ -185,6 +185,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
         }
         if(_.has(c,'health')) {
           c.health.remaining = c.health.pool;
+          c.health.deflect = _.has(c,'effects.deflect') ? c.effects.deflect : 0;
           unit.pools.push(c.health);
         }
       });
@@ -283,7 +284,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
               dmgRoll = dmgRoll < 0 ? 0 : dmgRoll;
               var dmg = _.round(attack.volley * dmgRoll / 1000);
               a.damage = dmg;
-              var msg = log(`${a.actor} did ${dmg} damage`,"log-entry-green");
+              var msg = log(`${a.actor} did ${dmg} damage to ${a.target}`,"log-entry-green");
               $ctrl.output.push(msg);
               state.log.push(msg);
             }
@@ -306,6 +307,13 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
             var remainder = attack.damage;
             // If there are any hitpoints left in a pool, apply damage
             _.forEach(pools,function(p) {
+              var deflect = p.deflect;
+              if(deflect > 0) {
+                remainder = ((remainder - deflect) > 0) ? (remainder - deflect) : 0;
+                var msg = log(`${target.name} deflects ${deflect} damage leaving ${remainder} damage`,"log-entry-warn");
+                $ctrl.output.push(msg);
+                state.log.push(msg);
+              }
               if(remainder > 0 && p.remaining > 0) {
                 // There is damage left and the pool has hitpoints apply it
                 if(p.remaining > remainder) {
