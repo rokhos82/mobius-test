@@ -69,7 +69,7 @@
         }
         u.components.push(hull);
 
-        if(parts.shields > 0) {
+        if(parts.shields >= 0) {
           var shield = objectFactory.newComponent();
           shield.name = "shield",
           shield.crit = "shield",

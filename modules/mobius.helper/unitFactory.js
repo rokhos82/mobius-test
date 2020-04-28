@@ -15,7 +15,8 @@
         ar: 0
       },
       "pools": [],
-      "attacks": []
+      "attacks": [],
+      "crits": []
     };
 
     var componentObject = {
@@ -28,6 +29,8 @@
       units: []
     };
 
+    var critObject = {};
+
     services.newUnit = function() {
       return _.cloneDeep(unitObject);
     };
@@ -38,6 +41,10 @@
 
     services.newFleet = function() {
       return _.cloneDeep(fleetObject);
+    };
+
+    services.newCrit = function() {
+      return _.cloneDeep(critObject);
     };
 
     return services;

@@ -20,6 +20,9 @@
   function controller($scope,udlParser,fleetParser) {
     var $ctrl = this;
 
+    $ctrl.critTable = initializeCritTable();
+    console.info($ctrl.critTable);
+
     $ctrl.title = "Mobius Testbed - CombatEngine Main Loop";
     $ctrl.output = [];
     $ctrl.combatLog = {};
@@ -31,7 +34,7 @@
 Red One 1,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15
 Red One 2,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15
 Red One 3,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
-    $ctrl.parseFleet = fleetParser.parseFots($ctrl.fleetUdl);
+    //$ctrl.parseFleet = fleetParser.parseFots($ctrl.fleetUdl);
 
     $ctrl.exampleUnit = {
       "name": "Red One 1",
@@ -72,6 +75,9 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       $ctrl.groups[team] = fleetParser.parseFots(str);
     };
 
+    /* startCombat - this function is the onclick event for the start
+     * combat button on the UI.
+    */
     $ctrl.startCombat = function() {
       $ctrl.output = [];
       $ctrl.output.push(log("Starting combat simulation"));
@@ -87,6 +93,9 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       // Finish up combat logs
     };
 
+    /* setupCombat - this function sets up the initial state object
+     * that the combat loop runs on
+    */
     function setupCombat(groups) {
       $ctrl.output.push(log("Setting up combat"));
 
@@ -185,7 +194,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         if(_.has(c,'effects.defense')) {
           unit.effects.defense += c.effects.defense;
         }
-        if(_.has(c,'health')) {
+        if(_.has(c,'health') && c.health.pool != 0) {
           c.health.remaining = c.health.pool;
           c.health.deflect = _.has(c,'effects.deflect') ? c.effects.deflect : 0;
           unit.pools.push(c.health);
@@ -201,6 +210,9 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       $ctrl.output.push(log("Building game board"));
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    //  MAIN COMBAT LOOP  //////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
     function doCombat(environment) {
       $ctrl.output.push(log("Begin Combat!","log-entry-important"));
 
@@ -211,6 +223,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       var count = 0;
       var limit = 1000;
       var state = _.cloneDeep(environment);
+      var prevState = _.cloneDeep(environment);
       var combatLog = [];
 
       // Check to see if there are any long range weapons in the combat
@@ -222,6 +235,11 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         state.targets.active = state.targets.long;
         combatTurn(state);
         state.targets.active = active;
+
+        prevState = state;
+        state = _.cloneDeep(state);
+        state.log = [];
+        state.attacks = [];
       }
 
       // Main combat loop
@@ -233,7 +251,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         $ctrl.output.push(log(`Begin Turn ${count}`,"log-entry-important"));
 
         // Do combat turn
-        combatTurn(state);
+        combatTurn(state,prevState);
 
         // Get ready for the next turn
         combatLog.push(state);
@@ -241,6 +259,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
           done = true;
         }
         else {
+          prevState = state;
           state = _.cloneDeep(state);
           state.log = [];
           state.attacks = [];
@@ -270,6 +289,14 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       }
 
       return ded;
+    }
+
+    function critCheck(unit,prevUnit) {
+      var crit = false;
+
+      if(unit.pools[0].remaining < prevUnit.pools[0].remaining) {}
+
+      return crit;
     }
 
     function gameOver(state) {
@@ -305,7 +332,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       return long;
     }
 
-    function combatTurn(state) {
+    function combatTurn(state,prevState) {
       _.forEach(state.targets.active,function(u) {
         var unit = state.targets.master[u];
         var msg = `Planning turn for ${unit.name}`;
@@ -430,6 +457,8 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         $ctrl.output.push(msg);
         state.log.push(msg);
 
+        if(critCheck(unit,prevState.targets.master[unit.name])) {}
+
         if(deathCheck(unit)) {
           var msg = log(`${unit.name} has been destroyed`,"log-entry-important");
           $ctrl.output.push(msg);
@@ -451,6 +480,24 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         }
       });
       _.pullAll(state.targets.active,removal);
+    }
+
+    function initializeCritTable() {
+      var ct = {
+        maxRoll: 0,
+        results: [
+          _.fill([1],{text:`Reactor Core Breach (Ship explodes)`,action:"death"}),
+          _.fill([2,3],{text:`Structural Collapse (+15% damage)`,action:"dmgAmp",mod:0.15}),
+          _.fill([4,5],{text:`Explosion Amidships (+10% damage)`,action:"dmgAmp",mod:0.1}),
+          _.fill([6,7],{text:`Superstructure Hit (+5% damage)`,action:"dmgAmp",mod:0.05}),
+          _.fill([8,9,10,11,12,13,14,15,16,17,18,19,20],{text:`Generic non-lethal crit`,action:"none"})
+        ]
+      };
+
+      ct.results = _.flatten(ct.results);
+      ct.maxRoll = ct.results.length - 1;
+
+      return ct;
     }
   }
 })();
