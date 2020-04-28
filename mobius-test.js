@@ -75,6 +75,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
     $ctrl.startCombat = function() {
       $ctrl.output = [];
       $ctrl.output.push(log("Starting combat simulation"));
+      $ctrl.combatLog = {};
 
       // Pre combat prep
       var environment = setupCombat($ctrl.groups);
@@ -90,7 +91,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       $ctrl.output.push(log("Setting up combat"));
 
       var settings = {};
-      settings.groups = groups;
+      settings.groups = _.cloneDeep(groups);
 
       // Prebuilt target lists
       var targets = buildTargetLists(settings);
