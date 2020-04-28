@@ -21,7 +21,6 @@
     var $ctrl = this;
 
     $ctrl.critTable = initializeCritTable();
-    console.info($ctrl.critTable);
 
     $ctrl.title = "Mobius Testbed - CombatEngine Main Loop";
     $ctrl.output = [];
@@ -84,7 +83,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       $ctrl.combatLog = {};
 
       // Pre combat prep
-      var environment = setupCombat($ctrl.groups);
+      var environment = setupCombat($ctrl.groups,$ctrl.critTable);
 
       // Start the main combat loop
       $ctrl.combatLog.turns = doCombat(environment);
@@ -96,11 +95,12 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
     /* setupCombat - this function sets up the initial state object
      * that the combat loop runs on
     */
-    function setupCombat(groups) {
+    function setupCombat(groups,crits) {
       $ctrl.output.push(log("Setting up combat"));
 
       var settings = {};
       settings.groups = _.cloneDeep(groups);
+      settings.crits = crits;
 
       // Prebuilt target lists
       var targets = buildTargetLists(settings);
@@ -291,6 +291,9 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       return ded;
     }
 
+    /* critCheck - this function determines if a unit has had a critical hit.
+     * Standard FOTS rules say that a unit suffers a crit every 20% of it's hull.
+    */
     function critCheck(unit,prevUnit) {
       var crit = false;
 
