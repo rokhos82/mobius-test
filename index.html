@@ -19,22 +19,22 @@
       <container class="content">
         <h3>Blue Team</h3>
         <div class="fleet-input">
-          <button ng-click="$ctrl.parseFleet('blue',$ctrl.blueFleetUdl)">Import Fleet File</button>
-          <textarea ng-model="$ctrl.blueFleetUdl"></textarea>
+          <button class="mobius-btn" ng-click="$ctrl.parseFleet('blue',$ctrl.blueFleetUdl)">Import Fleet File</button>
+          <textarea class="mobius-tarea" ng-model="$ctrl.blueFleetUdl"></textarea>
         </div>
         <div class="unit-list">
           <unit-card ng-repeat="unit in $ctrl.groups.blue.units" unit="unit"></unit-card>
         </div>
         <h3>Red Team</h3>
         <div class="fleet-input">
-          <button ng-click="$ctrl.parseFleet('red',$ctrl.redFleetUdl)">Import Fleet File</button>
-          <textarea ng-model="$ctrl.redFleetUdl"></textarea>
+          <button class="mobius-btn" ng-click="$ctrl.parseFleet('red',$ctrl.redFleetUdl)">Import Fleet File</button>
+          <textarea class="mobius-tarea" ng-model="$ctrl.redFleetUdl"></textarea>
         </div>
         <div class="unit-list">
           <unit-card ng-repeat="unit in $ctrl.groups.red.units" unit="unit"></unit-card>
         </div>
         <div>
-          <button ng-click="$ctrl.startCombat()">Start Combat</button>
+          <button class="mobius-btn" ng-click="$ctrl.startCombat()">Start Combat</button>
         </div>
         <div>
           <div ng-repeat="turn in $ctrl.combatLog.turns">

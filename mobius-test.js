@@ -57,7 +57,7 @@ Red One 2,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
 Red One 3,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15`;
 
     $ctrl.blueFleetUdl = `Blue 2,1,2,3,4
-Blue One 1,14,14,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
+Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
 
     $ctrl.$onInit = function() {
       $ctrl.groups = {

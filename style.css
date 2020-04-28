@@ -61,7 +61,7 @@ container {
 
 .fleet-input > button {
   display: block;
-  margin: 2px 0px;
+  margin: 5px 0px;
 }
 
 .fleet-input > textarea {
@@ -69,6 +69,42 @@ container {
   margin: 2px 0px;
   width: 100%;
   height: 100px;
+}
+
+.mobius-btn {
+  border: 2px solid darkorange;
+  color: darkorange;
+  background-color: dimgrey;
+  padding: 5px;
+  border-radius: 5px 10px;
+}
+
+.mobius-btn:hover {
+  background-color: #454545;
+}
+
+.mobius-btn:focus {
+  background-color: darkslategrey;
+}
+
+.mobius-btn:active {
+  background-color: slategrey;
+}
+
+.mobius-tarea {
+  background-color: dimgrey;
+  color: darkorange;
+  padding: 5px;
+  border: 2px solid darkorange;
+  border-radius: 5px;
+}
+
+.mobius-tarea:hover {
+  background-color: #454545;
+}
+
+.mobius-tarea:focus {
+  background-color: darkslategrey;
 }
 
 .unit-list {
