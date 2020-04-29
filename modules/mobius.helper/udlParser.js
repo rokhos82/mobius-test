@@ -17,7 +17,7 @@
       else {
         var parts = {
           name: rawParts[0],
-          beams: _.parseInt(rawParts[1]),
+          beam: _.parseInt(rawParts[1]),
           shields: _.parseInt(rawParts[3]),
           hull: _.parseInt(rawParts[7]),
           tags: rawParts[12]

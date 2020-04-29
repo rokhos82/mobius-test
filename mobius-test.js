@@ -129,7 +129,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
 
       // Get a list of targets for the red team
       _.forEach(settings.groups.blue.units,function(unit) {
-        $ctrl.output.push(log(`Adding unit ${unit.name} to target list`,"log-entry-action"));
+        //$ctrl.output.push(log(`Adding unit ${unit.name} to target list`,"log-entry-action"));
         initializeUnit({
           unit: unit,
           team: "blue",
@@ -139,15 +139,15 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         targets.active.push(unit.uuid);
 
         var stats = unitStats(unit);
-        var msg = log(`${unit.name} has ${stats.hull} hull and ${stats.shield} shields`);
-        $ctrl.output.push(msg);
+        //var msg = log(`${unit.name} has ${stats.hull} hull and ${stats.shield} shields`);
+        //$ctrl.output.push(msg);
       });
 
       settings.groups.blue.targets = targets.blue;
 
       // Get a list of targets for the blue team
       _.forEach(settings.groups.red.units,function(unit) {
-        $ctrl.output.push(log(`Adding unit ${unit.name} to target list`,"log-entry-action"));
+        //$ctrl.output.push(log(`Adding unit ${unit.name} to target list`,"log-entry-action"));
         initializeUnit({
           unit: unit,
           team: "red",
@@ -157,8 +157,8 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         targets.active.push(unit.uuid);
 
         var stats = unitStats(unit);
-        var msg = log(`${unit.name} has ${stats.hull} hull and ${stats.shield} shields`);
-        $ctrl.output.push(msg);
+        //var msg = log(`${unit.name} has ${stats.hull} hull and ${stats.shield} shields`);
+        //$ctrl.output.push(msg);
       });
 
       settings.groups.red.targets = targets.red;
