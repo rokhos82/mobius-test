@@ -7,6 +7,17 @@ container {
   margin: 0px;
 }
 
+::-webkit-scrollbar {
+  width: 15px;
+  height: 15px
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-color: dimgrey;
+  border: 2px solid orange;
+}
+
 .container {
   display: grid;
   grid-template-columns: 400px auto 400px;
@@ -19,6 +30,7 @@ container {
   grid-column: 1 / span 3;
   grid-row: 1 / span 1;
   border: 2px solid black;
+  border-radius: 10px;
   padding: 10px 5px;
   background-color: darkgrey;
   align-self: center;
@@ -33,6 +45,7 @@ container {
   grid-column: 1 / span 1;
   grid-row: 2 / span 1;
   border: 2px solid black;
+  border-radius: 10px;
   padding: 5px;
   overflow-x: hidden;
   overflow-y: visible;
@@ -43,6 +56,7 @@ container {
   grid-column: 2 / span 1;
   grid-row: 2 / span 1;
   border: 2px solid black;
+  border-radius: 10px;
   padding: 10px;
   overflow-x: hidden;
   overflow-y: visible;
@@ -53,6 +67,7 @@ container {
   grid-column: 3 / span 1;
   grid-row: 2 / span 1;
   border: 2px solid black;
+  border-radius: 10px;
   padding: 5px;
   overflow-x: hidden;
   overflow-y: visible;
@@ -72,10 +87,10 @@ container {
 }
 
 .mobius-btn {
-  border: 2px solid darkorange;
-  color: darkorange;
+  border: 2px solid orange;
+  color: orange;
   background-color: dimgrey;
-  padding: 5px;
+  padding: 8px;
   border-radius: 5px 10px;
 }
 
@@ -93,10 +108,10 @@ container {
 
 .mobius-tarea {
   background-color: dimgrey;
-  color: darkorange;
-  padding: 5px;
-  border: 2px solid darkorange;
-  border-radius: 5px;
+  color: orange;
+  padding: 8px;
+  border: 2px solid orange;
+  border-radius: 10px;
 }
 
 .mobius-tarea:hover {
@@ -157,61 +172,61 @@ container {
 .log-entry-info {
   background-color: dimgrey;
   color: orange;
-  padding: 2px 5px;
-  margin: 2px;
+  padding: 3px 5px;
+  margin: 3px;
   font-family: monospace;
-  border-radius: 3px;
-  border: 1px solid orange;
+  border-radius: 5px;
+  border: 2px solid orange;
 }
 
 .log-entry-warn {
   background-color: dimgrey;
   color: yellow;
-  padding: 2px 5px;
-  margin: 2px;
+  padding: 3px 5px;
+  margin: 3px;
   font-family: monospace;
-  border-radius: 3px;
-  border: 1px solid yellow;
+  border-radius: 5px;
+  border: 2px solid yellow;
 }
 
 .log-entry-action {
   background-color: dimgrey;
   color: cyan;
-  padding: 2px 5px;
-  margin: 2px;
+  padding: 3px 5px;
+  margin: 3px;
   font-family: monospace;
-  border-radius: 3px;
-  border: 1px solid cyan;
+  border-radius: 5px;
+  border: 2px solid cyan;
 }
 
 .log-entry-important {
   background-color: dimgrey;
   color: red;
-  padding: 2px 5px;
-  margin: 2px;
+  padding: 3px 5px;
+  margin: 3px;
   font-family: monospace;
-  border-radius: 3px;
-  border: 1px solid red;
+  border-radius: 5px;
+  border: 2px solid red;
 }
 
 .log-entry-purple {
   background-color: dimgrey;
   color: plum;
-  padding: 2px 5px;
-  margin: 2px;
+  padding: 3px 5px;
+  margin: 3px;
   font-family: monospace;
-  border-radius: 3px;
-  border: 1px solid plum;
+  border-radius: 5px;
+  border: 2px solid plum;
 }
 
 .log-entry-green {
   background-color: dimgrey;
   color: limegreen;
-  padding: 2px 5px;
-  margin: 2px;
+  padding: 3px 5px;
+  margin: 3px;
   font-family: monospace;
-  border-radius: 3px;
-  border: 1px solid limegreen;
+  border-radius: 5px;
+  border: 2px solid limegreen;
 }
 
 .log-entry-hover:hover {
