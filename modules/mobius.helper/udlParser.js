@@ -30,7 +30,7 @@
         var nonBracket = _.trim(parts.tags.slice(parts.tags.lastIndexOf("]")+1));
 
         // Extract information from the non-bracketed tags
-        if(nonBracket.indexOf("DEFENSE") >= 0) {
+        if(/((\s+|^)DEFENSE\s+)(-?\d+)(\s*)/.test(nonBracket)) {
           parts.defense = _.parseInt(nonBracket.match(/(?:(\s+|^)DEFENSE\s+)(?<def>-?\d+)(?:\s*)/).groups.def);
         }
 
@@ -42,7 +42,7 @@
           parts.ar = _.parseInt(nonBracket.match(/(?:(\s+|^)AR\s+)(?<ar>\d+)(?:\s*)/).groups.ar);
         }
 
-        if(nonBracket.indexOf("RESIST") >= 0) {
+        if(/((\s+|^)RESIST\s+)(\d+)(\s*)/.test(nonBracket)) {
           parts.resist = _.parseInt(nonBracket.match(/(?:(\s+|^)RESIST\s+)(?<resist>\d+)(?:\s*)/).groups.resist);
         }
 
