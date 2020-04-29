@@ -124,8 +124,10 @@ container {
 }
 
 .unit-list {
-  display: flex;
-  justify-content: flex-start;
+  display: grid;
+  grid-template-columns: 200px 200px 200px 200px 200px;
+  grid-template-rows: auto;
+  gap: 10px;
   margin-top: 10px;
   margin-bottom: 10px;
 }
@@ -133,8 +135,6 @@ container {
 .unit-card {
   border: 2px solid orange;
   background-color: dimgrey;
-  width: 200px;
-  height: 200px;
   padding: 10px 20px;
   border-radius: 15px 30px;
   margin-right: 10px;
@@ -159,7 +159,7 @@ container {
 }
 
 .unit-card-container {
-  display: flex;
+  display: block;
   flex-direction: column;
   flex-wrap: wrap;
 }
