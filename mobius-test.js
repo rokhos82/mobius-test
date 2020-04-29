@@ -1,7 +1,7 @@
 (function() {
-  var app = angular.module("mobius-test",["mobius.helper"]);
+  var app = angular.module("mobius-test",["mobius.helper","ce.service.uuid"]);
 
-  app.controller("mtCtrl",["$scope","mobius.helper.udlParser","mobius.helper.fleetParser",controller]);
+  app.controller("mtCtrl",["$scope","mobius.helper.udlParser","mobius.helper.fleetParser","UuidService",controller]);
 
   var outputItem = {
     klass: "log-entry-info",
@@ -17,14 +17,17 @@
 
   var combat = {};
 
-  function controller($scope,udlParser,fleetParser) {
+  function controller($scope,udlParser,fleetParser,uuid) {
     var $ctrl = this;
 
     $ctrl.critTable = initializeCritTable();
 
     $ctrl.title = "Mobius Testbed - CombatEngine Main Loop";
     $ctrl.output = [];
-    $ctrl.combatLog = {};
+    $ctrl.combatLog = {
+      turns: []
+    };
+    $ctrl.displayResults = false;
 
     $ctrl.udl = "Red One 1,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15";
     $ctrl.parsedExample = udlParser.parseFots($ctrl.udl);
@@ -78,6 +81,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
      * combat button on the UI.
     */
     $ctrl.startCombat = function() {
+      $ctrl.displayResults = false;
       $ctrl.output = [];
       $ctrl.output.push(log("Starting combat simulation"));
       $ctrl.combatLog = {};
@@ -90,6 +94,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       console.log($ctrl.combatLog);
 
       // Finish up combat logs
+      $ctrl.displayResults = true;
     };
 
     /* setupCombat - this function sets up the initial state object
@@ -122,44 +127,38 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         active: []
       };
 
-      /*
-       *   DO I NEED TO GENERATE A UUID for each unit during each combat?
-       *   I am thinking the answer is yes!
-       *
-       */
-
       // Get a list of targets for the red team
       _.forEach(settings.groups.blue.units,function(unit) {
-        $ctrl.output.push(log(`Adding unit ${unit.name} to target list`,"log-entry-action"));
+        //$ctrl.output.push(log(`Adding unit ${unit.name} to target list`,"log-entry-action"));
         initializeUnit({
           unit: unit,
           team: "blue",
           targets: targets.red,
           units: targets.master
         });
-        targets.active.push(unit.name);
+        targets.active.push(unit.uuid);
 
         var stats = unitStats(unit);
-        var msg = log(`${unit.name} has ${stats.hull} hull and ${stats.shield} shields`);
-        $ctrl.output.push(msg);
+        //var msg = log(`${unit.name} has ${stats.hull} hull and ${stats.shield} shields`);
+        //$ctrl.output.push(msg);
       });
 
       settings.groups.blue.targets = targets.blue;
 
       // Get a list of targets for the blue team
       _.forEach(settings.groups.red.units,function(unit) {
-        $ctrl.output.push(log(`Adding unit ${unit.name} to target list`,"log-entry-action"));
+        //$ctrl.output.push(log(`Adding unit ${unit.name} to target list`,"log-entry-action"));
         initializeUnit({
           unit: unit,
           team: "red",
           targets: targets.blue,
           units: targets.master
         });
-        targets.active.push(unit.name);
+        targets.active.push(unit.uuid);
 
         var stats = unitStats(unit);
-        var msg = log(`${unit.name} has ${stats.hull} hull and ${stats.shield} shields`);
-        $ctrl.output.push(msg);
+        //var msg = log(`${unit.name} has ${stats.hull} hull and ${stats.shield} shields`);
+        //$ctrl.output.push(msg);
       });
 
       settings.groups.red.targets = targets.red;
@@ -178,10 +177,11 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
 
       // Set the team for the unit
       unit.team = team;
+      unit.uuid = uuid.generate();
 
       // Add the team to the correct target list and the master unit list
-      data.targets.push(unit.name);
-      data.units[unit.name] = unit;
+      data.targets.push(unit.uuid);
+      data.units[unit.uuid] = unit;
 
       // Assign defaults to components that need them
       // Also compute aggregate values for some tags like DEFENSE
@@ -376,7 +376,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
           }
         });
         if(l) {
-          state.targets.long.push(unit.name);
+          state.targets.long.push(unit.uuid);
         }
       });
 
@@ -397,14 +397,15 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         // Choose a target or targets
         var attacks = [];
         _.forEach(actions,function(a) {
-          var target = _.sample(state.targets[unit.team]);
+          var t = _.sample(state.targets[unit.team]);
+          var target = state.targets.master[t];
           attacks.push({
-            actor: unit.name,
-            target: target,
+            actor: unit.uuid,
+            target: t,
             action: a.name
           });
-          var msg = log(`${unit.name} is targeting ${target}`,"log-entry-action")
-          $ctrl.output.push(msg);
+          var msg = log(`${unit.name} is targeting ${target.name}`,"log-entry-action")
+          //$ctrl.output.push(msg);
           state.log.push(msg);
         });
 
@@ -421,26 +422,26 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
           var attack = _.filter(actor.components,['name',a.action])[0].attack;
 
           // I should determine target here not earlier....the earlier loop is unnecessary!
-          var msg = log(`${a.actor} is attacking ${a.target} with ${a.action}`,"log-entry-green");
-          $ctrl.output.push(msg);
+          var msg = log(`${actor.name} is attacking ${target.name} with ${a.action}`,"log-entry-green");
+          //$ctrl.output.push(msg);
           state.log.push(msg);
 
           hit = hit + attack.target;
           a.hit = hit;
           var msg = log(`${actor.name} rolled a hit roll of ${hit} (${attack.target})`);
-          $ctrl.output.push(msg);
+          //$ctrl.output.push(msg);
           state.log.push(msg);
 
           def = def + target.effects.defense;
           a.def = def;
           var msg = log(`${actor.name} rolled a def roll of ${def} (${target.effects.defense})`);
-          $ctrl.output.push(msg);
+          //$ctrl.output.push(msg);
           state.log.push(msg);
 
           if(hit > def) {
             // Yay a hit!
             msg = log(`${actor.name} successfully hit ${target.name}`);
-            $ctrl.output.push(msg);
+            //$ctrl.output.push(msg);
             state.log.push(msg);
 
             // Roll damage
@@ -449,14 +450,14 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
             dmgRoll = dmgRoll < 0 ? 0 : dmgRoll;
             var dmg = _.round(attack.volley * dmgRoll / 1000);
             a.damage = dmg;
-            var msg = log(`${a.actor} did ${dmg} damage to ${a.target}`,"log-entry-green");
-            $ctrl.output.push(msg);
+            var msg = log(`${actor.name} did ${dmg} damage to ${target.name}`,"log-entry-green");
+            //$ctrl.output.push(msg);
             state.log.push(msg);
           }
           else {
             // Slippery little devil
             msg = log(`${actor.name} did not hit ${target.name}`,"log-entry-warn");
-            $ctrl.output.push(msg);
+            //$ctrl.output.push(msg);
             state.log.push(msg);
           }
         });
@@ -476,7 +477,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
             if(deflect > 0) {
               remainder = ((remainder - deflect) > 0) ? (remainder - deflect) : 0;
               var msg = log(`${target.name} deflects ${deflect} damage leaving ${remainder} damage`,"log-entry-warn");
-              $ctrl.output.push(msg);
+              //$ctrl.output.push(msg);
               state.log.push(msg);
             }
             if(remainder > 0 && p.remaining > 0) {
@@ -505,30 +506,30 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         //var unit = state.targets.master[u];
         var stats = unitStats(unit);
         var msg = log(`${unit.name} has ${stats.hull} hull and ${stats.shield} shields`);
-        $ctrl.output.push(msg);
+        //$ctrl.output.push(msg);
         state.log.push(msg);
 
         var crits = doCrit(state,unit);
         _.forEach(crits,function(crit) {
           var msg = log(`${unit.name} has suffered a critical hit: ${crit.text}`);
-          $ctrl.output.push(msg);
+          //$ctrl.output.push(msg);
           state.log.push(msg);
         });
 
         if(deathCheck(unit)) {
           var msg = log(`${unit.name} has been destroyed`,"log-entry-important");
-          $ctrl.output.push(msg);
+          //$ctrl.output.push(msg);
           state.log.push(msg);
 
-          //state.targets.active = _.pull(state.targets.active,unit.name);
-          removal.push(unit.name);
+          //state.targets.active = _.pull(state.targets.active,unit.uuid);
+          removal.push(unit.uuid);
 
           // Remove the unit from the target lists
           if(unit.team === "blue") {
-            state.targets.red = _.pull(state.targets.red,unit.name);
+            state.targets.red = _.pull(state.targets.red,unit.uuid);
           }
           else if(unit.team === "red") {
-            state.targets.blue = _.pull(state.targets.blue,unit.name);
+            state.targets.blue = _.pull(state.targets.blue,unit.uuid);
           }
           else {
             console.error("Well shit");
