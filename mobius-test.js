@@ -24,7 +24,9 @@
 
     $ctrl.title = "Mobius Testbed - CombatEngine Main Loop";
     $ctrl.output = [];
-    $ctrl.combatLog = {};
+    $ctrl.combatLog = {
+      turns: []
+    };
 
     $ctrl.udl = "Red One 1,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15";
     $ctrl.parsedExample = udlParser.parseFots($ctrl.udl);
@@ -392,13 +394,14 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         // Choose a target or targets
         var attacks = [];
         _.forEach(actions,function(a) {
-          var target = _.sample(state.targets[unit.team]);
+          var t = _.sample(state.targets[unit.team]);
+          var target = state.targets.master[t];
           attacks.push({
             actor: unit.uuid,
-            target: target,
+            target: t,
             action: a.name
           });
-          var msg = log(`${unit.name} is targeting ${target}`,"log-entry-action")
+          var msg = log(`${unit.name} is targeting ${target.name}`,"log-entry-action")
           $ctrl.output.push(msg);
           state.log.push(msg);
         });
@@ -416,7 +419,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
           var attack = _.filter(actor.components,['name',a.action])[0].attack;
 
           // I should determine target here not earlier....the earlier loop is unnecessary!
-          var msg = log(`${a.actor} is attacking ${a.target} with ${a.action}`,"log-entry-green");
+          var msg = log(`${actor.name} is attacking ${target.name} with ${a.action}`,"log-entry-green");
           $ctrl.output.push(msg);
           state.log.push(msg);
 
@@ -444,7 +447,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
             dmgRoll = dmgRoll < 0 ? 0 : dmgRoll;
             var dmg = _.round(attack.volley * dmgRoll / 1000);
             a.damage = dmg;
-            var msg = log(`${a.actor} did ${dmg} damage to ${a.target}`,"log-entry-green");
+            var msg = log(`${actor.name} did ${dmg} damage to ${target.name}`,"log-entry-green");
             $ctrl.output.push(msg);
             state.log.push(msg);
           }
