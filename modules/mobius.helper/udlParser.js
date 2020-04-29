@@ -30,20 +30,20 @@
         var nonBracket = _.trim(parts.tags.slice(parts.tags.lastIndexOf("]")+1));
 
         // Extract information from the non-bracketed tags
-        if(/((\s+|^)DEFENSE\s+)(-?\d+)(\s*)/.test(nonBracket)) {
-          parts.defense = _.parseInt(nonBracket.match(/(?:(\s+|^)DEFENSE\s+)(?<def>-?\d+)(?:\s*)/).groups.def);
+        if(/[\s+|^]DEFENSE\s+(-?\d+)\s*/.test(nonBracket)) {
+          parts.defense = _.parseInt(nonBracket.match(/[\s+|^]DEFENSE\s+(?<def>-?\d+)\s*/).groups.def);
         }
 
-        if(/((\s+|^)TARGET\s+)(-?\d+)(\s*)/.test(nonBracket)) {
-          parts.target = _.parseInt(nonBracket.match(/(?:(\s+|^)TARGET\s+)(?<tar>-?\d+)(?:\s*)/).groups.tar);
+        if(/[\s+|^]TARGET\s+(-?\d+)\s*/.test(nonBracket)) {
+          parts.target = _.parseInt(nonBracket.match(/[\s+|^]TARGET\s+(?<tar>-?\d+)\s*/).groups.tar);
         }
 
-        if(/((\s+|^)AR\s+)(\d+)(?:\s*)/.test(nonBracket)) {
-          parts.ar = _.parseInt(nonBracket.match(/(?:(\s+|^)AR\s+)(?<ar>\d+)(?:\s*)/).groups.ar);
+        if(/[\s+|^]AR\s+(\d+)\s*/.test(nonBracket)) {
+          parts.ar = _.parseInt(nonBracket.match(/[\s+|^]AR\s+(?<ar>\d+)\s*/).groups.ar);
         }
 
-        if(/((\s+|^)RESIST\s+)(\d+)(\s*)/.test(nonBracket)) {
-          parts.resist = _.parseInt(nonBracket.match(/(?:(\s+|^)RESIST\s+)(?<resist>\d+)(?:\s*)/).groups.resist);
+        if(/[\s+|^]RESIST\s+(\d+)\s*/.test(nonBracket)) {
+          parts.resist = _.parseInt(nonBracket.match(/[\s+|^]RESIST\s+(?<resist>\d+)\s*/).groups.resist);
         }
 
         // Fill out a unit object
@@ -88,9 +88,9 @@
           c.name = "attack";
           c.crit = "battery";
           c.attack = {};
-          c.attack.volley = _.parseInt(bracket.match(/(?:\[)(?<volley>\d+)/).groups.volley);
+          c.attack.volley = _.parseInt(bracket.match(/\[(?<volley>\d+)/).groups.volley);
           if(bracket.indexOf("target") > 0) {
-            c.attack.target = _.parseInt(bracket.match(/(?:target\s*)(?<tar>\d+)/).groups.tar) * 10;
+            c.attack.target = _.parseInt(bracket.match(/target\s*(?<tar>\d+)/).groups.tar) * 10;
           }
           if(bracket.indexOf("long") > 0) {
             c.attack.long = true;
