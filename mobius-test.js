@@ -22,7 +22,7 @@
 
     $ctrl.critTable = initializeCritTable();
 
-    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop";
+    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v0.1.0";
     $ctrl.output = [];
     $ctrl.combatLog = {
       turns: []
@@ -387,7 +387,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       _.forEach(state.targets.active,function(u) {
         var unit = state.targets.master[u];
         var msg = `Planning turn for ${unit.name}`;
-        $ctrl.output.push(log(msg,"log-entry-purple"));
+        //$ctrl.output.push(log(msg,"log-entry-purple"));
         state.log.push(log(msg,"log-entry-purple"));
         // Need to make this a permanent entry into a combat action log
 
