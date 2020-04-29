@@ -16,7 +16,7 @@
       }
       else {
         var parts = {
-          name: rawParts[0],
+          name: _.trim(rawParts[0],'"'),
           beam: _.parseInt(rawParts[1]),
           shields: _.parseInt(rawParts[3]),
           hull: _.parseInt(rawParts[7]),
