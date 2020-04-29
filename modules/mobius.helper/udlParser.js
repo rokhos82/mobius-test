@@ -15,6 +15,7 @@
       else {
         var parts = {
           name: rawParts[0],
+          beams: _.parseInt(rawParts[1]),
           shields: _.parseInt(rawParts[3]),
           hull: _.parseInt(rawParts[7]),
           tags: rawParts[12]
@@ -28,19 +29,19 @@
 
         // Extract information from the non-bracketed tags
         if(nonBracket.indexOf("DEFENSE") >= 0) {
-          parts.defense = _.parseInt(nonBracket.match(/(?:DEFENSE\s+)(?<def>\d+)(?:\s*)/).groups.def);
+          parts.defense = _.parseInt(nonBracket.match(/(?:(\s+|^)DEFENSE\s+)(?<def>-?\d+)(?:\s*)/).groups.def);
         }
 
         if(nonBracket.indexOf("TARGET") >= 0) {
-          parts.target = _.parseInt(nonBracket.match(/(?:TARGET\s+)(?<tar>\d+)(?:\s*)/).groups.tar);
+          parts.target = _.parseInt(nonBracket.match(/(?:(\s+|^)TARGET\s+)(?<tar>-?\d+)(?:\s*)/).groups.tar);
         }
 
-        if(nonBracket.indexOf("AR") >= 0) {
-          parts.ar = _.parseInt(nonBracket.match(/(?:AR\s+)(?<ar>\d+)(?:\s*)/).groups.ar);
+        if(/((\s+|^)AR\s+)(\d+)(?:\s*)/.test(nonBracket)) {
+          parts.ar = _.parseInt(nonBracket.match(/(?:(\s+|^)AR\s+)(?<ar>\d+)(?:\s*)/).groups.ar);
         }
 
         if(nonBracket.indexOf("RESIST") >= 0) {
-          parts.resist = _.parseInt(nonBracket.match(/(?:AR\s+)(?<resist>\d+)(?:\s*)/).groups.resist);
+          parts.resist = _.parseInt(nonBracket.match(/(?:(\s+|^)RESIST\s+)(?<resist>\d+)(?:\s*)/).groups.resist);
         }
 
         // Fill out a unit object
@@ -94,6 +95,17 @@
           }
           u.components.push(c);
         });
+
+        if(!_.isArray(brackets) && parts.beam != 0) {
+          // Then use the beam rating from the UDL and grab any non-bracketed weapons tags.
+          var beam = objectFactory.newComponent();
+          beam.name = "beam";
+          beam.crit = "battery";
+          beam.attack = {};
+          beam.attack.volley = parts.beam;
+          beam.attack.target = parts.target;
+          u.components.push(beam);
+        }
 
         u.type = "unit";
 
