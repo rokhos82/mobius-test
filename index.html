@@ -44,9 +44,12 @@
         <div>
           <button class="mobius-btn" ng-click="$ctrl.startCombat()">Start Combat</button>
         </div>
-        <div>
+        <div ng-if="$ctrl.displayResults">
+          <h3>Results</h3>
           <div ng-repeat="turn in $ctrl.combatLog.turns">
-            <div ng-repeat"entry in turn.log" class="{{entry.klass}}">{{entry.text}}</div>
+            Turn {{$index+1}}<br />
+            Log Entries: {{turn.log.length}}
+            <div ng-repeat="entry in turn.log" class="{{entry.klass}} log-entry-hover">{{entry.text}}</div>
           </div>
         </div>
       </container>
