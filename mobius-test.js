@@ -308,9 +308,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
     function doCrit(state,unit) {
       var crit = [];
       var remaining = _.last(unit.pools).remaining;
-      console.info(remaining);
-      console.info(unit.crits);
-
+      
       if(_.isNumber(unit.crits[0]) && remaining <= unit.crits[0]) {
         // Crit #1
         unit.crits[0] = rollCrit(state.crits);
