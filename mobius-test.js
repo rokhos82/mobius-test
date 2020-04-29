@@ -1,7 +1,7 @@
 (function() {
-  var app = angular.module("mobius-test",["mobius.helper"]);
+  var app = angular.module("mobius-test",["mobius.helper","ce.service.uuid"]);
 
-  app.controller("mtCtrl",["$scope","mobius.helper.udlParser","mobius.helper.fleetParser",controller]);
+  app.controller("mtCtrl",["$scope","mobius.helper.udlParser","mobius.helper.fleetParser","UuidService",controller]);
 
   var outputItem = {
     klass: "log-entry-info",
@@ -17,7 +17,7 @@
 
   var combat = {};
 
-  function controller($scope,udlParser,fleetParser) {
+  function controller($scope,udlParser,fleetParser,uuid) {
     var $ctrl = this;
 
     $ctrl.critTable = initializeCritTable();
@@ -122,12 +122,6 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         active: []
       };
 
-      /*
-       *   DO I NEED TO GENERATE A UUID for each unit during each combat?
-       *   I am thinking the answer is yes!
-       *
-       */
-
       // Get a list of targets for the red team
       _.forEach(settings.groups.blue.units,function(unit) {
         $ctrl.output.push(log(`Adding unit ${unit.name} to target list`,"log-entry-action"));
@@ -137,7 +131,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
           targets: targets.red,
           units: targets.master
         });
-        targets.active.push(unit.name);
+        targets.active.push(unit.uuid);
 
         var stats = unitStats(unit);
         var msg = log(`${unit.name} has ${stats.hull} hull and ${stats.shield} shields`);
@@ -155,7 +149,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
           targets: targets.blue,
           units: targets.master
         });
-        targets.active.push(unit.name);
+        targets.active.push(unit.uuid);
 
         var stats = unitStats(unit);
         var msg = log(`${unit.name} has ${stats.hull} hull and ${stats.shield} shields`);
@@ -178,10 +172,11 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
 
       // Set the team for the unit
       unit.team = team;
+      unit.uuid = uuid.generate();
 
       // Add the team to the correct target list and the master unit list
-      data.targets.push(unit.name);
-      data.units[unit.name] = unit;
+      data.targets.push(unit.uuid);
+      data.units[unit.uuid] = unit;
 
       // Assign defaults to components that need them
       // Also compute aggregate values for some tags like DEFENSE
@@ -376,7 +371,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
           }
         });
         if(l) {
-          state.targets.long.push(unit.name);
+          state.targets.long.push(unit.uuid);
         }
       });
 
@@ -399,7 +394,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         _.forEach(actions,function(a) {
           var target = _.sample(state.targets[unit.team]);
           attacks.push({
-            actor: unit.name,
+            actor: unit.uuid,
             target: target,
             action: a.name
           });
@@ -520,15 +515,15 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
           $ctrl.output.push(msg);
           state.log.push(msg);
 
-          //state.targets.active = _.pull(state.targets.active,unit.name);
-          removal.push(unit.name);
+          //state.targets.active = _.pull(state.targets.active,unit.uuid);
+          removal.push(unit.uuid);
 
           // Remove the unit from the target lists
           if(unit.team === "blue") {
-            state.targets.red = _.pull(state.targets.red,unit.name);
+            state.targets.red = _.pull(state.targets.red,unit.uuid);
           }
           else if(unit.team === "red") {
-            state.targets.blue = _.pull(state.targets.blue,unit.name);
+            state.targets.blue = _.pull(state.targets.blue,unit.uuid);
           }
           else {
             console.error("Well shit");
