@@ -95,6 +95,8 @@
           u.components.push(c);
         });
 
+        u.type = "unit";
+
         return u;
       }
     };

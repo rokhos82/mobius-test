@@ -204,6 +204,17 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       // Sort by priority then pool size.  Then reverse the order so that
       // higher priority pools are listed first.
       unit.pools = _.reverse(_.sortBy(unit.pools,['priority','pool']));
+
+      // Setup the crit array with hull values
+      // use the lowest priority pool as it should be the hull for FOTS.
+      var pool = _.last(unit.pools);
+      unit.crits = [
+        _.round(pool.remaining * .8),
+        _.round(pool.remaining * .6),
+        _.round(pool.remaining * .4),
+        _.round(pool.remaining * .2),
+        0
+      ];
     }
 
     function setupCombatBoard(settings) {
@@ -294,14 +305,50 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
     /* critCheck - this function determines if a unit has had a critical hit.
      * Standard FOTS rules say that a unit suffers a crit every 20% of it's hull.
     */
-    function critCheck(unit,prevUnit) {
-      var crit = false;
+    function doCrit(state,unit) {
+      var crit = [];
+      var remaining = _.last(unit.pools).remaining;
+      console.info(remaining);
+      console.info(unit.crits);
 
-      if(unit.pools[0].remaining < prevUnit.pools[0].remaining) {}
+      if(_.isNumber(unit.crits[0]) && remaining <= unit.crits[0]) {
+        // Crit #1
+        unit.crits[0] = rollCrit(state.crits);
+        crit.push(unit.crits[0]);
+      }
+      if(_.isNumber(unit.crits[1]) && remaining <= unit.crits[1]) {
+        // Crit #2
+        unit.crits[1] = rollCrit(state.crits);
+        crit.push(unit.crits[1]);
+      }
+      if(_.isNumber(unit.crits[2]) && remaining <= unit.crits[2]) {
+        // Crit #3
+        unit.crits[2] = rollCrit(state.crits);
+        crit.push(unit.crits[2]);
+      }
+      if(_.isNumber(unit.crits[3]) && remaining <= unit.crits[3]) {
+        // Crit #4
+        unit.crits[3] = rollCrit(state.crits);
+        crit.push(unit.crits[3]);
+      }
+      if(_.isNumber(unit.crits[4]) && remaining <= unit.crits[4]) {
+        // Crit #5
+        unit.crits[4] = rollCrit(state.crits);
+        crit.push(unit.crits[4]);
+      }
 
       return crit;
     }
 
+    /* rollCrit - select an event at random from table
+    */
+    function rollCrit(table) {
+      var roll = _.random(0,table.maxRoll);
+      return table.results[roll];
+    }
+
+    /* gameOver - determines if the simulation is done running
+    */
     function gameOver(state) {
       var done = false;
 
@@ -460,7 +507,12 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         $ctrl.output.push(msg);
         state.log.push(msg);
 
-        if(critCheck(unit,prevState.targets.master[unit.name])) {}
+        var crits = doCrit(state,unit);
+        _.forEach(crits,function(crit) {
+          var msg = log(`${unit.name} has suffered a critical hit: ${crit.text}`);
+          $ctrl.output.push(msg);
+          state.log.push(msg);
+        });
 
         if(deathCheck(unit)) {
           var msg = log(`${unit.name} has been destroyed`,"log-entry-important");
