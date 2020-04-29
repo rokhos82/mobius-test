@@ -112,6 +112,7 @@ container {
   padding: 8px;
   border: 2px solid orange;
   border-radius: 10px;
+  resize: none;
 }
 
 .mobius-tarea:hover {
@@ -201,12 +202,12 @@ container {
 
 .log-entry-important {
   background-color: dimgrey;
-  color: red;
+  color: salmon;
   padding: 3px 5px;
   margin: 3px;
   font-family: monospace;
   border-radius: 5px;
-  border: 2px solid red;
+  border: 2px solid salmon;
 }
 
 .log-entry-purple {
