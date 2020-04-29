@@ -22,7 +22,7 @@
 
     $ctrl.critTable = initializeCritTable();
 
-    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v0.1.0";
+    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v 0.1.3";
     $ctrl.output = [];
     $ctrl.combatLog = {
       turns: []
