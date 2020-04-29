@@ -11,6 +11,8 @@
 
       if(rawParts.length != 13) {
         console.error("Incorrect UDL");
+        console.info(udl);
+        console.info(rawParts);
       }
       else {
         var parts = {
@@ -32,7 +34,7 @@
           parts.defense = _.parseInt(nonBracket.match(/(?:(\s+|^)DEFENSE\s+)(?<def>-?\d+)(?:\s*)/).groups.def);
         }
 
-        if(nonBracket.indexOf("TARGET") >= 0) {
+        if(/((\s+|^)TARGET\s+)(-?\d+)(\s*)/.test(nonBracket)) {
           parts.target = _.parseInt(nonBracket.match(/(?:(\s+|^)TARGET\s+)(?<tar>-?\d+)(?:\s*)/).groups.tar);
         }
 
