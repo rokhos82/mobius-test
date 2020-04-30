@@ -7,13 +7,13 @@
   </head>
   <body ng-app="mobius-test">
     <container ng-controller="mtCtrl as $ctrl" class="container">
-      <container class="title"><span>{{$ctrl.title}}</span></container>
+      <container class="title"><span class="title-text">{{$ctrl.title}}</span></container>
       <container class="menu">
+        <span class="readme-title">READ ME</span>
+        <p>To use this combat engine copy and paste fleet files into the Blue and Red Team text boxes and click "Import Fleet File" for each team.  Then click "Start Combat".  Currently the only results you get display on the right hand pane</p>
         <h5>Working Features</h5>
         <p>I do not have all unit tags and features working yet. Right now the following items do work: non-missile weapons, shields, hull, defense, target, long, AR.</p>
         <p>Critical Hits are being generated but do not effect the unit at this time.</p>
-        <h5>Using this combat engine</h5>
-        <p>To use this combat engine copy and paste fleet files into the Blue and Red Team text boxes and click "Import Fleet File" for each team.  Then click "Start Combat".  Currently the only results you get display on the right hand pane</p>
         <h5>Next Steps</h5>
         <p>My next steps are to get a better format for the combat results and to finish up critical hits.  After that I want to get missile-type weapons working and add any remaining tags to the UDL parser.
         <h5>Parsed UDL</h5>
@@ -24,36 +24,45 @@
         <pre>{{$ctrl.groups | json}}</pre>
       </container>
       <container class="content">
-        <h3>Blue Team</h3>
-        <div class="fleet-input">
-          <button class="mobius-btn" ng-click="$ctrl.parseFleet('blue',$ctrl.blueFleetUdl)">Import Fleet File</button>
-          <textarea class="mobius-tarea" ng-model="$ctrl.blueFleetUdl"></textarea>
-        </div>
-        <div class="unit-list">
-          <unit-card ng-repeat="unit in $ctrl.groups.blue.units" unit="unit"></unit-card>
-        </div>
-        <h3>Red Team</h3>
-        <div class="fleet-input">
-          <button class="mobius-btn" ng-click="$ctrl.parseFleet('red',$ctrl.redFleetUdl)">Import Fleet File</button>
-          <textarea class="mobius-tarea" ng-model="$ctrl.redFleetUdl"></textarea>
-        </div>
-        <div class="unit-list">
-          <unit-card ng-repeat="unit in $ctrl.groups.red.units" unit="unit"></unit-card>
-        </div>
         <div>
+          <button class="mobius-btn" ng-click="$ctrl.parseFleet('blue',$ctrl.blueFleetUdl)">Import Blue Fleet</button>
+          <button class="mobius-btn" ng-click="$ctrl.parseFleet('red',$ctrl.redFleetUdl)">Import Red Fleet</button>
           <button class="mobius-btn" ng-click="$ctrl.startCombat()">Start Combat</button>
         </div>
-        <div ng-if="$ctrl.displayResults">
-          <h3>Results</h3>
-          <div ng-repeat="turn in $ctrl.combatLog.turns">
-            Turn {{$index+1}}<br />
-            Log Entries: {{turn.log.length}}
-            <div ng-repeat="entry in turn.log" class="{{entry.klass}} log-entry-hover">{{entry.text}}</div>
+        <fieldset class="fleet-block">
+          <legend class="fleet-title">Blue Team Fleet File</legend>
+          <div class="fleet-input">
+            <textarea class="mobius-tarea" ng-model="$ctrl.blueFleetUdl"></textarea>
           </div>
-        </div>
+        </fieldset>
+        <fieldset class="fleet-block">
+          <legend class="fleet-title">Red Team Fleet File</legend>
+          <div class="fleet-input">
+            <textarea class="mobius-tarea" ng-model="$ctrl.redFleetUdl"></textarea>
+          </div>
+        </fieldset>
+        <fieldset class="fleet-block">
+          <legend class="fleet-title">Blue Team Units</legend>
+          <div class="unit-list">
+            <unit-card ng-repeat="unit in $ctrl.groups.blue.units" unit="unit"></unit-card>
+          </div>
+        </fieldset>
+        <fieldset class="fleet-block">
+          <legend class="fleet-title">Red Team Units</legend>
+          <div class="unit-list">
+            <unit-card ng-repeat="unit in $ctrl.groups.red.units" unit="unit"></unit-card>
+          </div>
+        </fieldset>
       </container>
       <container class="output">
         <div ng-repeat="entry in $ctrl.output" class="{{entry.klass}} log-entry-hover">{{entry.text}}</div>
+      </container>
+      <container class="results">
+        <span class="title-text">Results</span>
+        <div ng-repeat="turn in $ctrl.combatLog.turns" class="result-turn-block">
+          <span class="result-turn-title">Turn {{$index+1}}</span>
+          <div ng-repeat="entry in turn.log" class="{{entry.klass}} log-entry-hover">{{entry.text}}</div>
+        </div>
       </container>
     </container>
     <script src="modules/uuid/module.uuid.js"></script>
