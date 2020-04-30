@@ -14,16 +14,16 @@ container {
 
 ::-webkit-scrollbar-thumb {
   border-radius: 10px;
-  background-color: dimgrey;
+  background-color: darkslategrey;
   border: 2px solid orange;
 }
 
 .container {
   display: grid;
-  grid-template-columns: 400px auto 400px;
-  grid-template-rows: 75px 600px;
+  grid-template-columns: 1fr 3fr 1fr;
+  grid-template-rows: auto 600px auto;
   column-gap: 5px;
-  row-gap: 0px;
+  row-gap: 5px;
 }
 
 .title {
@@ -71,6 +71,16 @@ container {
   padding: 5px;
   overflow-x: hidden;
   overflow-y: visible;
+  background-color: darkgrey;
+}
+
+.results {
+  grid-column: 1 / span 3;
+  grid-row: 3 / span 1;
+  border: 2px solid black;
+  border-radius: 10px;
+  padding: 5px;
+  overflow-x: hidden;
   background-color: darkgrey;
 }
 
