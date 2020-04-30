@@ -8,11 +8,11 @@
     services.parseFots = function(udl) {
       // Split the UDL by the 'commas'
       var rawParts = _.split(udl,",");
+      var data = {};
+      data.errors = [];
 
       if(rawParts.length != 13) {
-        console.error("Incorrect UDL");
-        console.info(udl);
-        console.info(rawParts);
+        data.errors.push(`Incorrect UDL. Part count is ${rawParts.length}; should be 13: ${udl}`);
       }
       else {
         var parts = {
@@ -111,8 +111,10 @@
 
         u.type = "unit";
 
-        return u;
+        data.unit = u;
       }
+
+      return data;
     };
 
     return services;

@@ -15,6 +15,14 @@
     return entry;
   }
 
+  function logErrors(errors) {
+    var entries = [];
+    _.forEach(errors,function(e) {
+      entries.push(log(e,"log-entry-important"));
+    });
+    return entries;
+  }
+
   var combat = {};
 
   function controller($scope,udlParser,fleetParser,uuid) {
@@ -22,7 +30,7 @@
 
     $ctrl.critTable = initializeCritTable();
 
-    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v 0.1.6";
+    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v 0.1.7";
     $ctrl.output = [];
     $ctrl.combatLog = {
       turns: []
@@ -30,13 +38,12 @@
     $ctrl.displayResults = false;
 
     $ctrl.udl = "Red One 1,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15";
-    $ctrl.parsedExample = udlParser.parseFots($ctrl.udl);
+    $ctrl.parsedExample = udlParser.parseFots($ctrl.udl).unit;
 
     $ctrl.fleetUdl = `The Big Ones,1,2,3,4
 Red One 1,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15
 Red One 2,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15
 Red One 3,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
-    //$ctrl.parseFleet = fleetParser.parseFots($ctrl.fleetUdl);
 
     $ctrl.exampleUnit = {
       "name": "Red One 1",
@@ -65,16 +72,14 @@ Red One 3,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15`;
 Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`;
 
     $ctrl.$onInit = function() {
-      $ctrl.groups = {
-        //blue: angular.fromJson($ctrl.blueExample),
-        //blue: fleetParser.parseFots($ctrl.blueFleetUdl),
-        //red: angular.fromJson($ctrl.redExample)
-        //red: fleetParser.parseFots($ctrl.redFleetUdl)
-      };
+      $ctrl.groups = {};
     };
 
     $ctrl.parseFleet = function(team,str) {
-      $ctrl.groups[team] = fleetParser.parseFots(str);
+      $ctrl.output.push(log(`Importing ${team} fleet file`));
+      var data = fleetParser.parseFots(str);
+      $ctrl.output = _.concat($ctrl.output,logErrors(data.errors));
+      $ctrl.groups[team] = data.group;
     };
 
     /* startCombat - this function is the onclick event for the start
