@@ -29,7 +29,7 @@ container {
 .title {
   grid-column: 1 / span 3;
   grid-row: 1 / span 1;
-  border: 2px solid black;
+  border: 3px solid darkslategrey;
   border-radius: 10px;
   padding: 10px 5px;
   background-color: darkgrey;
@@ -46,7 +46,7 @@ container {
 .menu {
   grid-column: 1 / span 1;
   grid-row: 2 / span 1;
-  border: 2px solid black;
+  border: 3px solid darkslategrey;
   border-radius: 10px;
   padding: 5px;
   overflow-x: hidden;
@@ -57,7 +57,7 @@ container {
 .content {
   grid-column: 2 / span 1;
   grid-row: 2 / span 1;
-  border: 2px solid black;
+  border: 3px solid darkslategrey;
   border-radius: 10px;
   padding: 10px;
   overflow-x: hidden;
@@ -68,7 +68,7 @@ container {
 .output {
   grid-column: 3 / span 1;
   grid-row: 2 / span 1;
-  border: 2px solid black;
+  border: 3px solid darkslategrey;
   border-radius: 10px;
   padding: 5px;
   overflow-x: hidden;
@@ -79,7 +79,7 @@ container {
 .results {
   grid-column: 1 / span 3;
   grid-row: 3 / span 1;
-  border: 2px solid black;
+  border: 3px solid darkslategrey;
   border-radius: 10px;
   padding: 5px;
   overflow-x: hidden;
@@ -109,6 +109,7 @@ container {
   font-variant: small-caps;
   font-weight: normal;
   color: darkslategrey;
+  font-weight: bold;
 }
 
 .mobius-btn {
@@ -146,6 +147,20 @@ container {
 
 .mobius-tarea:focus {
   background-color: darkslategrey;
+}
+
+.readme-title {
+  display: block;
+  margin: 5px;
+  padding: 5px;
+  background-color: darkslategrey;
+  border-radius: 10px;
+  font-size: 14pt;
+  font-variant: small-caps;
+  font-weight: normal;
+  color: orange;
+  font-weight: bold;
+  text-align: center;
 }
 
 .unit-list {
