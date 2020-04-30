@@ -30,7 +30,7 @@
 
     $ctrl.critTable = initializeCritTable();
 
-    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v 0.1.7";
+    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v 0.1.8";
     $ctrl.output = [];
     $ctrl.combatLog = {
       turns: []
@@ -388,13 +388,15 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       return long;
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    //  combatTurn - this is the main combat event loop processor.
+    ////////////////////////////////////////////////////////////////////////////
     function combatTurn(state,prevState) {
+      // Loop through all of the active units and process their turns
       _.forEach(state.targets.active,function(u) {
         var unit = state.targets.master[u];
-        var msg = `Planning turn for ${unit.name}`;
-        //$ctrl.output.push(log(msg,"log-entry-purple"));
+        var msg = `Processing turn for ${unit.name}`;
         state.log.push(log(msg,"log-entry-purple"));
-        // Need to make this a permanent entry into a combat action log
 
         // Get the list of attacks a unit can make
         var actions = _.filter(unit.components,'attack');
@@ -544,6 +546,14 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       _.pullAll(state.targets.active,removal);
     }
 
+    /* turnCleanup - end of turn house keeping
+    */
+    function turnCleanup(state) {}
+
+    ////////////////////////////////////////////////////////////////////////////
+    //  initializeCritTable - this function sets up the critical hit tables
+    //    used by the combat engine.
+    ////////////////////////////////////////////////////////////////////////////
     function initializeCritTable() {
       var ct = {
         maxRoll: 0,

@@ -31,6 +31,20 @@
 
     var critObject = {};
 
+    var unitLog = {
+      uuid: "",
+      actions: [], // Things the unit did
+      effects: [] // Things done to the unit
+    };
+
+    // Valid verbs: attack, flee
+    var unitAction = {
+      actor: "", // UUID of the actor
+      target: "", // UUID of the target
+      verb: "",
+      data: {} // specifics vary depending on the verb
+    };
+
     services.newUnit = function() {
       return _.cloneDeep(unitObject);
     };
@@ -46,6 +60,14 @@
     services.newCrit = function() {
       return _.cloneDeep(critObject);
     };
+
+    services.newUnitLog = function() {
+      return _.cloneDeep(unitLog);
+    }
+
+    services.newUnitAction = function() {
+      return _.cloneDeep(unitAction);
+    }
 
     return services;
   }
