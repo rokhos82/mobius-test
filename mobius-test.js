@@ -397,79 +397,95 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         var unit = state.targets.master[u];
         var msg = `Processing turn for ${unit.name}`;
         state.log.push(log(msg,"log-entry-purple"));
-
-        // Get the list of attacks a unit can make
-        var actions = _.filter(unit.components,'attack');
-
-        // Choose a target or targets
-        var attacks = [];
-        _.forEach(actions,function(a) {
-          var t = _.sample(state.targets[unit.team]);
-          var target = state.targets.master[t];
-          attacks.push({
-            actor: unit.uuid,
-            target: t,
-            action: a.name
-          });
-          var msg = log(`${unit.name} is targeting ${target.name}`,"log-entry-action")
-          //$ctrl.output.push(msg);
-          state.log.push(msg);
-        });
-
-        state.attacks = _.concat(state.attacks,attacks);
-
-        // Attack said target(s)
-        _.forEach(attacks,function(a) {
-          // Roll for to hit and then damage
-          var hit = _.random(1,1000,false);
-          var def = _.random(1,1000,false);
-
-          var actor = state.targets.master[a.actor];
-          var target = state.targets.master[a.target];
-          var attack = _.filter(actor.components,['name',a.action])[0].attack;
-
-          // I should determine target here not earlier....the earlier loop is unnecessary!
-          var msg = log(`${actor.name} is attacking ${target.name} with ${a.action}`,"log-entry-green");
-          //$ctrl.output.push(msg);
-          state.log.push(msg);
-
-          hit = hit + attack.target;
-          a.hit = hit;
-          var msg = log(`${actor.name} rolled a hit roll of ${hit} (${attack.target})`);
-          //$ctrl.output.push(msg);
-          state.log.push(msg);
-
-          def = def + target.effects.defense;
-          a.def = def;
-          var msg = log(`${actor.name} rolled a def roll of ${def} (${target.effects.defense})`);
-          //$ctrl.output.push(msg);
-          state.log.push(msg);
-
-          if(hit > def) {
-            // Yay a hit!
-            msg = log(`${actor.name} successfully hit ${target.name}`);
-            //$ctrl.output.push(msg);
-            state.log.push(msg);
-
-            // Roll damage
-            var dmgRoll = _.random(1,1000,false) + attack.yield;
-            dmgRoll = dmgRoll > 1000 ? 1000 : dmgRoll;
-            dmgRoll = dmgRoll < 0 ? 0 : dmgRoll;
-            var dmg = _.round(attack.volley * dmgRoll / 1000);
-            a.damage = dmg;
-            var msg = log(`${actor.name} did ${dmg} damage to ${target.name}`,"log-entry-green");
-            //$ctrl.output.push(msg);
-            state.log.push(msg);
-          }
-          else {
-            // Slippery little devil
-            msg = log(`${actor.name} did not hit ${target.name}`,"log-entry-warn");
-            //$ctrl.output.push(msg);
-            state.log.push(msg);
-          }
-        });
+        processUnit(unit,state);
       });
 
+      // Determine and apply the final results of the actions queue from
+      // above
+      applyEffects(state);
+
+      // Cleanup dead units and anything else
+      turnCleanup(state);
+    }
+
+    /* processUnit - perform actions that the unit can take
+    */
+    function processUnit(unit,state) {
+      // Get the list of attacks a unit can make
+      var actions = _.filter(unit.components,'attack');
+
+      // Choose a target or targets
+      var attacks = [];
+      _.forEach(actions,function(a) {
+        var t = _.sample(state.targets[unit.team]);
+        var target = state.targets.master[t];
+        attacks.push({
+          actor: unit.uuid,
+          target: t,
+          action: a.name
+        });
+        var msg = log(`${unit.name} is targeting ${target.name}`,"log-entry-action")
+        //$ctrl.output.push(msg);
+        state.log.push(msg);
+      });
+
+      state.attacks = _.concat(state.attacks,attacks);
+
+      // Attack said target(s)
+      _.forEach(attacks,function(a) {
+        // Roll for to hit and then damage
+        var hit = _.random(1,1000,false);
+        var def = _.random(1,1000,false);
+
+        var actor = state.targets.master[a.actor];
+        var target = state.targets.master[a.target];
+        var attack = _.filter(actor.components,['name',a.action])[0].attack;
+
+        // I should determine target here not earlier....the earlier loop is unnecessary!
+        var msg = log(`${actor.name} is attacking ${target.name} with ${a.action}`,"log-entry-green");
+        //$ctrl.output.push(msg);
+        state.log.push(msg);
+
+        hit = hit + attack.target;
+        a.hit = hit;
+        var msg = log(`${actor.name} rolled a hit roll of ${hit} (${attack.target})`);
+        //$ctrl.output.push(msg);
+        state.log.push(msg);
+
+        def = def + target.effects.defense;
+        a.def = def;
+        var msg = log(`${actor.name} rolled a def roll of ${def} (${target.effects.defense})`);
+        //$ctrl.output.push(msg);
+        state.log.push(msg);
+
+        if(hit > def) {
+          // Yay a hit!
+          msg = log(`${actor.name} successfully hit ${target.name}`);
+          //$ctrl.output.push(msg);
+          state.log.push(msg);
+
+          // Roll damage
+          var dmgRoll = _.random(1,1000,false) + attack.yield;
+          dmgRoll = dmgRoll > 1000 ? 1000 : dmgRoll;
+          dmgRoll = dmgRoll < 0 ? 0 : dmgRoll;
+          var dmg = _.round(attack.volley * dmgRoll / 1000);
+          a.damage = dmg;
+          var msg = log(`${actor.name} did ${dmg} damage to ${target.name}`,"log-entry-green");
+          //$ctrl.output.push(msg);
+          state.log.push(msg);
+        }
+        else {
+          // Slippery little devil
+          msg = log(`${actor.name} did not hit ${target.name}`,"log-entry-warn");
+          //$ctrl.output.push(msg);
+          state.log.push(msg);
+        }
+      });
+    }
+
+    /* applyEffects - make the things stick!
+    */
+    function applyEffects(state) {
       // Do turn cleanup
       _.forEach(state.attacks,function(attack) {
         // Apply damage as necessary
@@ -506,7 +522,11 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
           });
         }
       });
+    }
 
+    /* turnCleanup - end of turn house keeping
+    */
+    function turnCleanup(state) {
       // Decide who is now dead
       var removal = [];
       _.forEach(state.targets.master,function(unit) {
@@ -545,10 +565,6 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       });
       _.pullAll(state.targets.active,removal);
     }
-
-    /* turnCleanup - end of turn house keeping
-    */
-    function turnCleanup(state) {}
 
     ////////////////////////////////////////////////////////////////////////////
     //  initializeCritTable - this function sets up the critical hit tables
