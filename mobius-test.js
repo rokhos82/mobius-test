@@ -144,8 +144,6 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         targets.active.push(unit.uuid);
 
         var stats = unitStats(unit);
-        //var msg = log(`${unit.name} has ${stats.hull} hull and ${stats.shield} shields`);
-        //$ctrl.output.push(msg);
       });
 
       settings.groups.blue.targets = targets.blue;
@@ -162,8 +160,6 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         targets.active.push(unit.uuid);
 
         var stats = unitStats(unit);
-        //var msg = log(`${unit.name} has ${stats.hull} hull and ${stats.shield} shields`);
-        //$ctrl.output.push(msg);
       });
 
       settings.groups.red.targets = targets.red;
@@ -425,7 +421,6 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
           action: a.name
         });
         var msg = log(`${unit.name} is targeting ${target.name}`,"log-entry-action")
-        //$ctrl.output.push(msg);
         state.log.push(msg);
       });
 
@@ -443,25 +438,21 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
 
         // I should determine target here not earlier....the earlier loop is unnecessary!
         var msg = log(`${actor.name} is attacking ${target.name} with ${a.action}`,"log-entry-green");
-        //$ctrl.output.push(msg);
         state.log.push(msg);
 
         hit = hit + attack.target;
         a.hit = hit;
         var msg = log(`${actor.name} rolled a hit roll of ${hit} (${attack.target})`);
-        //$ctrl.output.push(msg);
         state.log.push(msg);
 
         def = def + target.effects.defense;
         a.def = def;
         var msg = log(`${actor.name} rolled a def roll of ${def} (${target.effects.defense})`);
-        //$ctrl.output.push(msg);
         state.log.push(msg);
 
         if(hit > def) {
           // Yay a hit!
           msg = log(`${actor.name} successfully hit ${target.name}`);
-          //$ctrl.output.push(msg);
           state.log.push(msg);
 
           // Roll damage
@@ -471,13 +462,11 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
           var dmg = _.round(attack.volley * dmgRoll / 1000);
           a.damage = dmg;
           var msg = log(`${actor.name} did ${dmg} damage to ${target.name}`,"log-entry-green");
-          //$ctrl.output.push(msg);
           state.log.push(msg);
         }
         else {
           // Slippery little devil
           msg = log(`${actor.name} did not hit ${target.name}`,"log-entry-warn");
-          //$ctrl.output.push(msg);
           state.log.push(msg);
         }
       });
@@ -500,7 +489,6 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
             if(deflect > 0) {
               remainder = ((remainder - deflect) > 0) ? (remainder - deflect) : 0;
               var msg = log(`${target.name} deflects ${deflect} damage leaving ${remainder} damage`,"log-entry-warn");
-              //$ctrl.output.push(msg);
               state.log.push(msg);
             }
             if(remainder > 0 && p.remaining > 0) {
@@ -533,19 +521,16 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         //var unit = state.targets.master[u];
         var stats = unitStats(unit);
         var msg = log(`${unit.name} has ${stats.hull} hull and ${stats.shield} shields`);
-        //$ctrl.output.push(msg);
         state.log.push(msg);
 
         var crits = doCrit(state,unit);
         _.forEach(crits,function(crit) {
           var msg = log(`${unit.name} has suffered a critical hit: ${crit.text}`);
-          //$ctrl.output.push(msg);
           state.log.push(msg);
         });
 
         if(deathCheck(unit)) {
           var msg = log(`${unit.name} has been destroyed`,"log-entry-important");
-          //$ctrl.output.push(msg);
           state.log.push(msg);
 
           //state.targets.active = _.pull(state.targets.active,unit.uuid);
