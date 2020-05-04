@@ -472,6 +472,22 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       });
     }
 
+    /* selectTarget -
+    */
+    function selectTarget(unit,state) {
+      var t = _.sample(state.targets[unit.team]);
+      var target = state.targets.master[t];
+
+      var msg = log(`${unit.name} is targeting ${target.name}`,"log-entry-action");
+      state.log.push(msg);
+
+      return {
+        actor: unit.uuid,
+        target: t,
+        action: a.name
+      };
+    }
+
     /* applyEffects - make the things stick!
     */
     function applyEffects(state) {
