@@ -134,7 +134,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
 
       // Get a list of targets for the red team
       _.forEach(settings.groups.blue.units,function(unit) {
-        //$ctrl.output.push(log(`Adding unit ${unit.name} to target list`,"log-entry-action"));
+        //$ctrl.output.push(log(`Adding unit ${unit.info.name} to target list`,"log-entry-action"));
         initializeUnit({
           unit: unit,
           team: "blue",
@@ -150,7 +150,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
 
       // Get a list of targets for the blue team
       _.forEach(settings.groups.red.units,function(unit) {
-        //$ctrl.output.push(log(`Adding unit ${unit.name} to target list`,"log-entry-action"));
+        //$ctrl.output.push(log(`Adding unit ${unit.info.name} to target list`,"log-entry-action"));
         initializeUnit({
           unit: unit,
           team: "red",
@@ -190,28 +190,28 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         if(_.has(c,'attack')) {
           c.attack.target = _.isNumber(c.attack.target) ? c.attack.target : 0;
           c.attack.yield = _.isNumber(c.attack.yield) ? c.attack.yield : 0;
-          unit.attacks.push(c);
+          unit.state.actions.push(c);
         }
         if(_.has(c,'effects.defense')) {
-          unit.effects.defense += c.effects.defense;
+          unit.state.effects.defense += c.effects.defense;
         }
         if(_.has(c,'effects.ar')) {
-          unit.effects.ar += c.effects.ar;
+          unit.state.effects.ar += c.effects.ar;
         }
         if(_.has(c,'health') && c.health.pool != 0) {
           c.health.remaining = c.health.pool;
           c.health.deflect = _.has(c,'effects.deflect') ? c.effects.deflect : 0;
-          unit.pools.push(c.health);
+          unit.state.pools.push(c.health);
         }
       });
 
       // Sort by priority then pool size.  Then reverse the order so that
       // higher priority pools are listed first.
-      unit.pools = _.reverse(_.sortBy(unit.pools,['priority','pool']));
+      unit.state.pools = _.reverse(_.sortBy(unit.state.pools,['priority','pool']));
 
       // Setup the crit array with hull values
       // use the lowest priority pool as it should be the hull for FOTS.
-      var pool = _.last(unit.pools);
+      var pool = _.last(unit.state.pools);
       unit.crits = [
         _.round(pool.remaining * .8),
         _.round(pool.remaining * .6),
@@ -299,7 +299,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
     function deathCheck(unit) {
       var ded = false;
 
-      if(_.last(unit.pools).remaining <= 0) {
+      if(_.last(unit.state.pools).remaining <= 0) {
         ded = true;
       }
 
@@ -311,7 +311,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
     */
     function doCrit(state,unit) {
       var crit = [];
-      var remaining = _.last(unit.pools).remaining;
+      var remaining = _.last(unit.state.pools).remaining;
 
       if(_.isNumber(unit.crits[0]) && remaining <= unit.crits[0]) {
         // Crit #1
@@ -370,7 +370,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
 
       _.forEach(state.targets.master,function(unit) {
         var l = false;
-        _.forEach(unit.attacks,function(attack) {
+        _.forEach(unit.state.actions,function(attack) {
           if(_.has(attack,'attack.long')) {
             long = true;
             l = true;
@@ -391,7 +391,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       // Loop through all of the active units and process their turns
       _.forEach(state.targets.active,function(u) {
         var unit = state.targets.master[u];
-        var msg = `Processing turn for ${unit.name}`;
+        var msg = `Processing turn for ${unit.info.name}`;
         state.log.push(log(msg,"log-entry-purple"));
         processUnit(unit,state);
       });
@@ -420,7 +420,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
           target: t,
           action: a.name
         });
-        var msg = log(`${unit.name} is targeting ${target.name}`,"log-entry-action")
+        var msg = log(`${unit.info.name} is targeting ${target.name}`,"log-entry-action")
         state.log.push(msg);
       });
 
@@ -478,7 +478,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       var t = _.sample(state.targets[unit.team]);
       var target = state.targets.master[t];
 
-      var msg = log(`${unit.name} is targeting ${target.name}`,"log-entry-action");
+      var msg = log(`${unit.info.name} is targeting ${target.name}`,"log-entry-action");
       state.log.push(msg);
 
       return {
@@ -536,17 +536,17 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       _.forEach(state.targets.master,function(unit) {
         //var unit = state.targets.master[u];
         var stats = unitStats(unit);
-        var msg = log(`${unit.name} has ${stats.hull} hull and ${stats.shield} shields`);
+        var msg = log(`${unit.info.name} has ${stats.hull} hull and ${stats.shield} shields`);
         state.log.push(msg);
 
         var crits = doCrit(state,unit);
         _.forEach(crits,function(crit) {
-          var msg = log(`${unit.name} has suffered a critical hit: ${crit.text}`);
+          var msg = log(`${unit.info.name} has suffered a critical hit: ${crit.text}`);
           state.log.push(msg);
         });
 
         if(deathCheck(unit)) {
-          var msg = log(`${unit.name} has been destroyed`,"log-entry-important");
+          var msg = log(`${unit.info.name} has been destroyed`,"log-entry-important");
           state.log.push(msg);
 
           //state.targets.active = _.pull(state.targets.active,unit.uuid);

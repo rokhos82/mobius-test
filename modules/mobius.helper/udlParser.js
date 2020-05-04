@@ -49,8 +49,9 @@
         // Fill out a unit object
         var u = objectFactory.newUnit();
 
-        u.name = parts.name;
-        u.size = parts.hull;
+        u.info.name = parts.name;
+        u.info.size = parts.hull;
+        u.info.type = "unit";
 
         var hull = objectFactory.newComponent();
         hull.name = "hull";
@@ -108,8 +109,6 @@
           beam.attack.target = parts.target;
           u.components.push(beam);
         }
-
-        u.type = "unit";
 
         data.unit = u;
       }

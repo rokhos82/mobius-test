@@ -27,6 +27,23 @@
       }
     };
 
+    var unitObject2 = {
+      "info": {
+        "name": "",
+        "type": "",
+        "size": 0
+      },
+      "components": [],
+      "channels": {}
+      "state": {
+        active: true,
+        flee: false,
+        effects: {},
+        pools: [],
+        actions: []
+      }
+    };
+
     var componentObject = {
       name: "",
       crit: ""
