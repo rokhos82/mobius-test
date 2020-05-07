@@ -34,7 +34,7 @@
         "size": 0
       },
       "components": [],
-      "channels": {}
+      "channels": {},
       "state": {
         active: true,
         flee: false,
@@ -71,7 +71,7 @@
     };
 
     services.newUnit = function() {
-      return _.cloneDeep(unitObject);
+      return _.cloneDeep(unitObject2);
     };
 
     services.newComponent = function() {

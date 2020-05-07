@@ -23,6 +23,8 @@
           tags: rawParts[12]
         };
 
+        var channels = ["hull","shield","crew","boarding","power","realspace","superluminal"];
+
         // Get the parts of the tags string that are bracketed
         var brackets = parts.tags.match(/\[.*?\]/g);
 
