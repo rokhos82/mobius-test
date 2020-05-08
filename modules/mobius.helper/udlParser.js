@@ -24,6 +24,9 @@
         };
 
         var channels = ["hull","shield","crew","boarding","power","realspace","superluminal"];
+        var groups = {
+          hitpoints: ["hull","shield"]
+        };
 
         // Get the parts of the tags string that are bracketed
         var brackets = parts.tags.match(/\[.*?\]/g);
@@ -44,9 +47,29 @@
           parts.ar = _.parseInt(nonBracket.match(/[\s+|^]AR\s+(?<ar>\d+)\s*/).groups.ar);
         }
 
+        if(/[\s+|^]SR\s+(\d+)\s*/.test(nonBracket)) {}
+
         if(/[\s+|^]RESIST\s+(\d+)\s*/.test(nonBracket)) {
           parts.resist = _.parseInt(nonBracket.match(/[\s+|^]RESIST\s+(?<resist>\d+)\s*/).groups.resist);
         }
+
+        if(/[\s+|^]FLICKER\s+(\d+)\s*/.test(nonBracket)) {}
+
+        if(/[\s+|^]DELAY\s+(\d+)/.test(nonBracket)) {}
+
+        if(/[\s+|^]DAMAGE\s+(\d+)/.test(nonBracket)) {}
+
+        if(/[\s+|^]BREAK\s+(\d+)/.test(nonBracket)) {}
+
+        if(/[\s+|^]RESERVE\s+(\d+)/.test(nonBracket)) {}
+
+        if(/[\s+|^]PD\s+(\d+)/.test(nonBracket)) {}
+
+        if(/[\s+|^]REGEN\s+(\d+)\s+(\d+)\s+/.test(nonBracket)) {}
+
+        if(/[\s+|^]DL\s+(\w+)\s+/.test(nonBracket)) {}
+
+        if(/[\s+|^]HULL\s+(\d+)\s+(\d+)\s+/.test(nonBracket)) {}
 
         // Fill out a unit object
         var u = objectFactory.newUnit();
@@ -92,12 +115,49 @@
           c.crit = "battery";
           c.attack = {};
           c.attack.volley = _.parseInt(bracket.match(/\[(?<volley>\d+)/).groups.volley);
-          if(bracket.indexOf("target") > 0) {
-            c.attack.target = _.parseInt(bracket.match(/target\s*(?<tar>\d+)/).groups.tar) * 10;
+
+          if(/targets\s+\d+/.test(bracket)) {
+            c.attack.target = _.parseInt(bracket.match(/target\s+(?<tar>\d+)/).groups.tar) * 10;
           }
-          if(bracket.indexOf("long") > 0) {
+
+          if(/\s+long/.test(bracket)) {
             c.attack.long = true;
           }
+
+          if(/ammo\s+\d+\s*/.test(bracket)) {
+            c.attack.ammo = _.parseInt(bracket.match(/ammo\s+(?<ammo>\d+)/).groups.ammo);
+          }
+
+          if(/yield\s+\d+/.test(bracket)) {
+            c.attack.yield = _.parseInt(bracket.match(/yield\s+(?<yield>\d+)/).groups.yield) * 10;
+          }
+
+          if(/mis..../.test(bracket)) {
+            c.attack.packet = _.parseInt(bracket.match(/mis..(?<packet>.)./).groups.packet,16);
+          }
+
+          if(/multi\s+\d+/.test(bracket)) {
+            var packet = _.parseInt(bracket.match(/multi\s+(?<packet>\d+)/).groups.packet);
+          }
+
+          if(/vibro/.test(bracket)) {}
+
+          if(/meson/.test(bracket)) {}
+
+          if(/low/.test(bracket)) {}
+
+          if(/heat/.test(bracket)) {}
+
+          if(/crack/.test(bracket)) {}
+
+          if(/global/.test(bracket)) {}
+
+          if(/offline/.test(bracket)) {}
+
+          if(/pen/.test(bracket)) {}
+
+          if(/hull\s+\d+\s+\d+/.test(bracket)) {}
+
           u.components.push(c);
         });
 
