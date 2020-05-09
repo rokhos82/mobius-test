@@ -47,13 +47,17 @@
           parts.ar = _.parseInt(nonBracket.match(/[\s+|^]AR\s+(?<ar>\d+)\s*/).groups.ar);
         }
 
-        if(/[\s+|^]SR\s+(\d+)\s*/.test(nonBracket)) {}
+        if(/[\s+|^]SR\s+(\d+)\s*/.test(nonBracket)) {
+          parts.sr = _.parseInt(nonBracket.match(/[\s+|^]SR\s+(?<sr>\d+)\s*/).groups.sr);
+        }
 
         if(/[\s+|^]RESIST\s+(\d+)\s*/.test(nonBracket)) {
           parts.resist = _.parseInt(nonBracket.match(/[\s+|^]RESIST\s+(?<resist>\d+)\s*/).groups.resist);
         }
 
-        if(/[\s+|^]FLICKER\s+(\d+)\s*/.test(nonBracket)) {}
+        if(/[\s+|^]FLICKER\s+(\d+)\s*/.test(nonBracket)) {
+          parts.flicker = _.parseInt(nonBracket.match(/[\s+|^]FLICKER\s+(?<flicker>\d+)\s*/).groups.flicker);
+        }
 
         if(/[\s+|^]DELAY\s+(\d+)/.test(nonBracket)) {}
 
@@ -96,6 +100,7 @@
         if(parts.ar > 0) {
           hull.effects.deflect = parts.ar;
         }
+        hull.channel = "hull";
         u.components.push(hull);
 
         if(parts.shields >= 0) {
@@ -106,6 +111,7 @@
             pool: parts.shields,
             priority: 2
           }
+          shield.channel = "shield";
           u.components.push(shield);
         }
 
@@ -115,6 +121,7 @@
           c.crit = "battery";
           c.attack = {};
           c.attack.volley = _.parseInt(bracket.match(/\[(?<volley>\d+)/).groups.volley);
+          c.attack.channel = "hitpoints";
 
           if(/targets\s+\d+/.test(bracket)) {
             c.attack.target = _.parseInt(bracket.match(/target\s+(?<tar>\d+)/).groups.tar) * 10;
@@ -140,17 +147,29 @@
             var packet = _.parseInt(bracket.match(/multi\s+(?<packet>\d+)/).groups.packet);
           }
 
-          if(/vibro/.test(bracket)) {}
+          if(/vibro/.test(bracket)) {
+            c.attack.vibro = true;
+          }
 
-          if(/meson/.test(bracket)) {}
+          if(/meson/.test(bracket)) {
+            c.attack.meson = true;
+          }
 
-          if(/low/.test(bracket)) {}
+          if(/low/.test(bracket)) {
+            c.attack.low = true;
+          }
 
-          if(/heat/.test(bracket)) {}
+          if(/heat/.test(bracket)) {
+            c.attack.heat = true;
+          }
 
-          if(/crack/.test(bracket)) {}
+          if(/crack/.test(bracket)) {
+            c.attack.crack = true;
+          }
 
-          if(/global/.test(bracket)) {}
+          if(/global/.test(bracket)) {
+            c.attack.global = true;
+          }
 
           if(/offline/.test(bracket)) {}
 
