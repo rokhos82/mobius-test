@@ -38,7 +38,9 @@
       "state": {
         active: true,
         flee: false,
-        effects: {},
+        effects: {
+          defense: 0
+        },
         pools: [],
         actions: []
       }

@@ -19,7 +19,7 @@
 
       _.forEach(unitLines,function(line) {
         var d = udl.parseFots(line);
-        
+
         if(d.errors.length == 0) {
           fleet.units.push(d.unit);
         }

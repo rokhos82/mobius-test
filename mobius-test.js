@@ -1,7 +1,7 @@
 (function() {
   var app = angular.module("mobius-test",["mobius.helper","ce.service.uuid"]);
 
-  app.controller("mtCtrl",["$scope","mobius.helper.udlParser","mobius.helper.fleetParser","UuidService",controller]);
+  app.controller("mtCtrl",["$scope","mobius.helper.udlParser","mobius.helper.fleetParser","UuidService","mobius.helper.combat",controller]);
 
   var outputItem = {
     klass: "log-entry-info",
@@ -25,7 +25,7 @@
 
   var combat = {};
 
-  function controller($scope,udlParser,fleetParser,uuid) {
+  function controller($scope,udlParser,fleetParser,uuid,combat) {
     var $ctrl = this;
 
     $ctrl.critTable = initializeCritTable();
@@ -236,7 +236,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
 
       var done = false;
       var count = 0;
-      var limit = 1000;
+      var limit = 100;
       var state = _.cloneDeep(environment);
       var prevState = _.cloneDeep(environment);
       var combatLog = [];
@@ -420,8 +420,8 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
           target: t,
           action: a.name
         });
-        var msg = log(`${unit.info.name} is targeting ${target.name}`,"log-entry-action")
-        state.log.push(msg);
+        //var msg = log(`${unit.info.name} is targeting ${target.info.name}`,"log-entry-action")
+        //state.log.push(msg);
       });
 
       state.attacks = _.concat(state.attacks,attacks);
@@ -437,22 +437,43 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         var attack = _.filter(actor.components,['name',a.action])[0].attack;
 
         // I should determine target here not earlier....the earlier loop is unnecessary!
-        var msg = log(`${actor.name} is attacking ${target.name} with ${a.action}`,"log-entry-green");
-        state.log.push(msg);
+        //var msg = log(`${actor.info.name} is attacking ${target.info.name} with ${a.action}`,"log-entry-green");
+        //state.log.push(msg);
 
-        hit = hit + attack.target;
+        // Hand off the attack to the combat helper
+        var results = combat.doAttack({
+          actor: actor,
+          target: target,
+          attack: attack,
+          mode: "limit",
+          limit: 500
+        });
+
+        a.results = results;
+        console.log(results);
+
+        if(results.success) {
+          var msg = log(`${actor.info.name} fires on ${target.info.name} scoring ${results.damage} hits!`);
+          state.log.push(msg);
+        }
+        else {
+          var msg = log(`${actor.info.name} fires on ${target.info.name} and misses.`);
+          state.log.push(msg);
+        }
+
+        /*hit = hit + attack.target;
         a.hit = hit;
-        var msg = log(`${actor.name} rolled a hit roll of ${hit} (${attack.target})`);
+        var msg = log(`${actor.info.name} rolled a hit roll of ${hit} (${attack.target})`);
         state.log.push(msg);
 
-        def = def + target.effects.defense;
+        def += target.state.effects.defense;
         a.def = def;
-        var msg = log(`${actor.name} rolled a def roll of ${def} (${target.effects.defense})`);
+        var msg = log(`${actor.info.name} rolled a def roll of ${def} (${target.state.effects.defense})`);
         state.log.push(msg);
 
         if(hit > def) {
           // Yay a hit!
-          msg = log(`${actor.name} successfully hit ${target.name}`);
+          msg = log(`${actor.info.name} successfully hit ${target.info.name}`);
           state.log.push(msg);
 
           // Roll damage
@@ -461,14 +482,14 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
           dmgRoll = dmgRoll < 0 ? 0 : dmgRoll;
           var dmg = _.round(attack.volley * dmgRoll / 1000);
           a.damage = dmg;
-          var msg = log(`${actor.name} did ${dmg} damage to ${target.name}`,"log-entry-green");
+          var msg = log(`${actor.info.name} did ${dmg} damage to ${target.info.name}`,"log-entry-green");
           state.log.push(msg);
         }
         else {
           // Slippery little devil
-          msg = log(`${actor.name} did not hit ${target.name}`,"log-entry-warn");
+          msg = log(`${actor.info.name} did not hit ${target.info.name}`,"log-entry-warn");
           state.log.push(msg);
-        }
+        }*/
       });
     }
 
@@ -478,7 +499,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       var t = _.sample(state.targets[unit.team]);
       var target = state.targets.master[t];
 
-      var msg = log(`${unit.info.name} is targeting ${target.name}`,"log-entry-action");
+      var msg = log(`${unit.info.name} is targeting ${target.info.name}`,"log-entry-action");
       state.log.push(msg);
 
       return {
@@ -504,7 +525,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
             var deflect = p.deflect;
             if(deflect > 0) {
               remainder = ((remainder - deflect) > 0) ? (remainder - deflect) : 0;
-              var msg = log(`${target.name} deflects ${deflect} damage leaving ${remainder} damage`,"log-entry-warn");
+              var msg = log(`${target.info.name} deflects ${deflect} damage leaving ${remainder} damage`,"log-entry-warn");
               state.log.push(msg);
             }
             if(remainder > 0 && p.remaining > 0) {

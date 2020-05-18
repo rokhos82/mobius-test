@@ -35,45 +35,45 @@
         var nonBracket = _.trim(parts.tags.slice(parts.tags.lastIndexOf("]")+1));
 
         // Extract information from the non-bracketed tags
-        if(/[\s+|^]DEFENSE\s+(-?\d+)\s*/.test(nonBracket)) {
-          parts.defense = _.parseInt(nonBracket.match(/[\s+|^]DEFENSE\s+(?<def>-?\d+)\s*/).groups.def);
+        if(/^\s*DEFENSE\s+(-?\d+)\s*/.test(nonBracket)) {
+          parts.defense = _.parseInt(nonBracket.match(/^\s*DEFENSE\s+(?<def>-?\d+)\s*/).groups.def);
         }
 
-        if(/[\s+|^]TARGET\s+(-?\d+)\s*/.test(nonBracket)) {
-          parts.target = _.parseInt(nonBracket.match(/[\s+|^]TARGET\s+(?<tar>-?\d+)\s*/).groups.tar);
+        if(/^\s*TARGET\s+(-?\d+)\s*/.test(nonBracket)) {
+          parts.target = _.parseInt(nonBracket.match(/^\s*TARGET\s+(?<tar>-?\d+)\s*/).groups.tar);
         }
 
-        if(/[\s+|^]AR\s+(\d+)\s*/.test(nonBracket)) {
-          parts.ar = _.parseInt(nonBracket.match(/[\s+|^]AR\s+(?<ar>\d+)\s*/).groups.ar);
+        if(/^\s*AR\s+(\d+)\s*/.test(nonBracket)) {
+          parts.ar = _.parseInt(nonBracket.match(/^\s*AR\s+(?<ar>\d+)\s*/).groups.ar);
         }
 
-        if(/[\s+|^]SR\s+(\d+)\s*/.test(nonBracket)) {
-          parts.sr = _.parseInt(nonBracket.match(/[\s+|^]SR\s+(?<sr>\d+)\s*/).groups.sr);
+        if(/^\s*SR\s+(\d+)\s*/.test(nonBracket)) {
+          parts.sr = _.parseInt(nonBracket.match(/^\s*SR\s+(?<sr>\d+)\s*/).groups.sr);
         }
 
-        if(/[\s+|^]RESIST\s+(\d+)\s*/.test(nonBracket)) {
-          parts.resist = _.parseInt(nonBracket.match(/[\s+|^]RESIST\s+(?<resist>\d+)\s*/).groups.resist);
+        if(/^\s*RESIST\s+(\d+)\s*/.test(nonBracket)) {
+          parts.resist = _.parseInt(nonBracket.match(/^\s*RESIST\s+(?<resist>\d+)\s*/).groups.resist);
         }
 
-        if(/[\s+|^]FLICKER\s+(\d+)\s*/.test(nonBracket)) {
-          parts.flicker = _.parseInt(nonBracket.match(/[\s+|^]FLICKER\s+(?<flicker>\d+)\s*/).groups.flicker);
+        if(/^\s*FLICKER\s+(\d+)\s*/.test(nonBracket)) {
+          parts.flicker = _.parseInt(nonBracket.match(/^\s*FLICKER\s+(?<flicker>\d+)\s*/).groups.flicker);
         }
 
-        if(/[\s+|^]DELAY\s+(\d+)/.test(nonBracket)) {}
+        if(/^\s*DELAY\s+(\d+)/.test(nonBracket)) {}
 
-        if(/[\s+|^]DAMAGE\s+(\d+)/.test(nonBracket)) {}
+        if(/^\s*DAMAGE\s+(\d+)/.test(nonBracket)) {}
 
-        if(/[\s+|^]BREAK\s+(\d+)/.test(nonBracket)) {}
+        if(/^\s*BREAK\s+(\d+)/.test(nonBracket)) {}
 
-        if(/[\s+|^]RESERVE\s+(\d+)/.test(nonBracket)) {}
+        if(/^\s*RESERVE\s+(\d+)/.test(nonBracket)) {}
 
-        if(/[\s+|^]PD\s+(\d+)/.test(nonBracket)) {}
+        if(/^\s*PD\s+(\d+)/.test(nonBracket)) {}
 
-        if(/[\s+|^]REGEN\s+(\d+)\s+(\d+)\s+/.test(nonBracket)) {}
+        if(/^\s*REGEN\s+(\d+)\s+(\d+)\s+/.test(nonBracket)) {}
 
-        if(/[\s+|^]DL\s+(\w+)\s+/.test(nonBracket)) {}
+        if(/^\s*DL\s+(\w+)\s+/.test(nonBracket)) {}
 
-        if(/[\s+|^]HULL\s+(\d+)\s+(\d+)\s+/.test(nonBracket)) {}
+        if(/^\s*HULL\s+(\d+)\s+(\d+)\s+/.test(nonBracket)) {}
 
         // Fill out a unit object
         var u = objectFactory.newUnit();
@@ -123,7 +123,7 @@
           c.attack.volley = _.parseInt(bracket.match(/\[(?<volley>\d+)/).groups.volley);
           c.attack.channel = "hitpoints";
 
-          if(/targets\s+\d+/.test(bracket)) {
+          if(/target\s+\d+/.test(bracket)) {
             c.attack.target = _.parseInt(bracket.match(/target\s+(?<tar>\d+)/).groups.tar) * 10;
           }
 
