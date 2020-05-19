@@ -54,7 +54,7 @@
       <container class="results">
         <span class="title-text">Results</span>
         <div ng-repeat="turn in $ctrl.combatLog.turns" class="result-turn-block">
-          <span class="result-turn-title">Turn {{$index+1}}</span>
+          <span class="result-turn-title">Battle Round {{$index+1}}</span>
           <div ng-repeat="entry in turn.log" class="{{entry.klass}} log-entry-hover">{{entry.text}}</div>
         </div>
       </container>

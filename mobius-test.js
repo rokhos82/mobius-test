@@ -301,6 +301,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
 
       if(_.last(unit.state.pools).remaining <= 0) {
         ded = true;
+        unit.state.active = false;
       }
 
       return ded;
@@ -391,8 +392,8 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       // Loop through all of the active units and process their turns
       _.forEach(state.targets.active,function(u) {
         var unit = state.targets.master[u];
-        var msg = `Processing turn for ${unit.info.name}`;
-        state.log.push(log(msg,"log-entry-purple"));
+        //var msg = `Processing turn for ${unit.info.name}`;
+        //state.log.push(log(msg,"log-entry-purple"));
         processUnit(unit,state);
       });
 
@@ -452,11 +453,11 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         a.results = results.results;
 
         if(results.results.success) {
-          var msg = log(`${actor.info.name} fires on ${target.info.name} scoring ${results.results.damage} hits!`);
+          var msg = log(`${actor.info.name} fires on ${target.info.name} scoring ${results.results.damage} hits!`,"log-entry-green");
           state.log.push(msg);
         }
         else {
-          var msg = log(`${actor.info.name} fires on ${target.info.name} and misses.`);
+          var msg = log(`${actor.info.name} fires on ${target.info.name} and misses.`,"log-entry-warn");
           state.log.push(msg);
         }
       });
@@ -481,7 +482,6 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
     /* applyEffects - make the things stick!
     */
     function applyEffects(state) {
-      console.log(state);
       // Do turn cleanup
       _.forEach(state.attacks,function(attack) {
         // Apply damage as necessary
@@ -524,7 +524,11 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
     function turnCleanup(state) {
       // Decide who is now dead
       var removal = [];
-      _.forEach(state.targets.master,function(unit) {
+
+      // Get the list of active units
+      var list = _.filter(state.targets.master,['state.active',true]);
+      
+      _.forEach(list,function(unit) {
         //var unit = state.targets.master[u];
         var stats = unitStats(unit);
         var msg = log(`${unit.info.name} has ${stats.hull} hull and ${stats.shield} shields`);
