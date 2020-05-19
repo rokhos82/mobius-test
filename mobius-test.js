@@ -392,8 +392,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       // Loop through all of the active units and process their turns
       _.forEach(state.targets.active,function(u) {
         var unit = state.targets.master[u];
-        //var msg = `Processing turn for ${unit.info.name}`;
-        //state.log.push(log(msg,"log-entry-purple"));
+        
         processUnit(unit,state);
       });
 
@@ -527,7 +526,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
 
       // Get the list of active units
       var list = _.filter(state.targets.master,['state.active',true]);
-      
+
       _.forEach(list,function(unit) {
         //var unit = state.targets.master[u];
         var stats = unitStats(unit);
