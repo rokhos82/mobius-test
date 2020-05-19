@@ -63,12 +63,12 @@
             //Determine damage.
             // Roll for damage between 10% and 100%
             var damageRoll = _.random(1,1000,false);
-            damageRoll += attack.yield ? attack.yield : 0;
-            damageRoll -= target.state.effects.resist;
+            damageRoll += (_.isNumber(attack.yield) ? attack.yield : 0);
+            damageRoll -= (_.isNumber(target.state.effects.resist) ? target.state.effects.resist : 0);
 
             // Bounds check the damage roll
-            damageRoll = damageRoll > 1000 ? 1000 : damage;
-            damageRoll = damageRoll < 100 ? 100 : damage;
+            damageRoll = damageRoll > 1000 ? 1000 : damageRoll;
+            damageRoll = damageRoll < 100 ? 100 : damageRoll;
 
             // Calculate how much damage the attack causes
             var damage = _.round(attack.volley * damageRoll / 1000);

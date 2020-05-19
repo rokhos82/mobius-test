@@ -449,47 +449,16 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
           limit: 500
         });
 
-        a.results = results;
-        console.log(results);
+        a.results = results.results;
 
-        if(results.success) {
-          var msg = log(`${actor.info.name} fires on ${target.info.name} scoring ${results.damage} hits!`);
+        if(results.results.success) {
+          var msg = log(`${actor.info.name} fires on ${target.info.name} scoring ${results.results.damage} hits!`);
           state.log.push(msg);
         }
         else {
           var msg = log(`${actor.info.name} fires on ${target.info.name} and misses.`);
           state.log.push(msg);
         }
-
-        /*hit = hit + attack.target;
-        a.hit = hit;
-        var msg = log(`${actor.info.name} rolled a hit roll of ${hit} (${attack.target})`);
-        state.log.push(msg);
-
-        def += target.state.effects.defense;
-        a.def = def;
-        var msg = log(`${actor.info.name} rolled a def roll of ${def} (${target.state.effects.defense})`);
-        state.log.push(msg);
-
-        if(hit > def) {
-          // Yay a hit!
-          msg = log(`${actor.info.name} successfully hit ${target.info.name}`);
-          state.log.push(msg);
-
-          // Roll damage
-          var dmgRoll = _.random(1,1000,false) + attack.yield;
-          dmgRoll = dmgRoll > 1000 ? 1000 : dmgRoll;
-          dmgRoll = dmgRoll < 0 ? 0 : dmgRoll;
-          var dmg = _.round(attack.volley * dmgRoll / 1000);
-          a.damage = dmg;
-          var msg = log(`${actor.info.name} did ${dmg} damage to ${target.info.name}`,"log-entry-green");
-          state.log.push(msg);
-        }
-        else {
-          // Slippery little devil
-          msg = log(`${actor.info.name} did not hit ${target.info.name}`,"log-entry-warn");
-          state.log.push(msg);
-        }*/
       });
     }
 
@@ -512,14 +481,15 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
     /* applyEffects - make the things stick!
     */
     function applyEffects(state) {
+      console.log(state);
       // Do turn cleanup
       _.forEach(state.attacks,function(attack) {
         // Apply damage as necessary
-        if(attack.damage) {
+        if(attack.results.damage) {
           var target = state.targets.master[attack.target];
           // Get all health pools
-          var pools = target.pools;
-          var remainder = attack.damage;
+          var pools = target.state.pools;
+          var remainder = attack.results.damage;
           // If there are any hitpoints left in a pool, apply damage
           _.forEach(pools,function(p) {
             var deflect = p.deflect;
