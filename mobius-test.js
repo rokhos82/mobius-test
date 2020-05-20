@@ -167,8 +167,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       return targets;
     }
 
-    /*
-     *  initializeUnit() - this function prepares a unit object for use by the
+    /* initializeUnit() - this function prepares a unit object for use by the
      * combat engine.  THis includes additional linking between groups
      * and target lists, setting defaults in components, etc.
      */
@@ -392,7 +391,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       // Loop through all of the active units and process their turns
       _.forEach(state.targets.active,function(u) {
         var unit = state.targets.master[u];
-        
+
         processUnit(unit,state);
       });
 
@@ -537,6 +536,8 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         _.forEach(crits,function(crit) {
           var msg = log(`${unit.info.name} has suffered a critical hit: ${crit.text}`);
           state.log.push(msg);
+          if(crit.action === "dmg") {
+          }
         });
 
         if(deathCheck(unit)) {
@@ -570,10 +571,12 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         maxRoll: 0,
         results: [
           _.fill([1],{text:`Reactor Core Breach (Ship explodes)`,action:"death"}),
-          _.fill([2,3],{text:`Structural Collapse (+15% damage)`,action:"dmgAmp",mod:0.15}),
-          _.fill([4,5],{text:`Explosion Amidships (+10% damage)`,action:"dmgAmp",mod:0.1}),
-          _.fill([6,7],{text:`Superstructure Hit (+5% damage)`,action:"dmgAmp",mod:0.05}),
-          _.fill([8,9,10,11,12,13,14,15,16,17,18,19,20],{text:`Generic non-lethal crit`,action:"none"})
+          _.fill([2,3],{text:`Structural Collapse (+15% damage)`,action:"dmgAmp",dmgAmp:0.15}),
+          _.fill([4,5,6],{text:`Explosion Amidships (+10% damage)`,action:"dmgAmp",dmgAmp:0.1}),
+          _.fill([7,8,9,10,11,12],{text:`Superstructure Hit (+5% damage)`,action:"dmgAmp",dmgAmp:0.05}),
+          _.fill([13,14,15,16,17,18,19,20,21,22,23,24,25],{text:`Generic non-lethal crit +1 damage`,action:"dmg",dmg:1}),
+          _.fill([26,27,28,29,30,31,32,33],{text:`Generic non-lethal crit +2 damage`,action:"dmg",dmg:2}),
+          _.fill([34,35,36,37],{text:`Generic non-leathal crit +3 damage`,action:"dmg",dmg:3})
         ]
       };
 

@@ -84,6 +84,56 @@
       };
     };
 
+    /* doDamage - This function applies damage to a unit.
+    */
+    services.doDamage = function(data) {
+      var target = data.target;
+      var damage = data.damage;
+
+      var errors = [];
+      var results = {};
+
+      // Things to consider: deflect, resist, and displacement
+      // deflect is a specific amount of damage reduction (think AR)
+      // <no>resist is a percentage amount of damage reduction</no> ALREADY CONSIDERED IN THE ATTACK FUNCTION
+      // displacement is a percentage chance to miss entirely (think FLICKER)
+
+      // Displacement is considered first, then if the attack did actually land,
+      // deflect is used to remove a constant amount.
+
+      // Check if the unit has displacement
+      var missed = false;
+      if(_.isNumber(target.state.displacement)) {
+        // Roll the chance to miss
+        var toMiss = _.random(1,1000,false);
+
+        // Did the hit really miss!?
+        missed = (toMiss < target.state.displacement);
+        results.displaced = true;
+      }
+      // Check if we missed again...
+      if(!missed) {
+        // Does the unit posses deflect?
+        var block = _.isNumber(target.state.deflect) ? target.state.deflect : 0;
+        results.blocked = block;
+
+        // Determine damage after deflect
+        damage -= block;
+        damage = damage < 0 ? 0 : damage;
+
+        // Save the end damage to the result set
+        results.damage = damage;
+      }
+
+      // Apply the damage to the unit
+
+      // Return the results and any errors
+      return {
+        errors: errors,
+        results: results
+      };
+    };
+
     return services;
   }
 
