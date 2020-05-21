@@ -5,6 +5,124 @@
   function factoryCtrl(objectFactory) {
     var services = {};
 
+    function buildAttack(bracket) {
+      var c = objectFactory.newComponent();
+      c.name = "attack";
+      c.crit = "battery";
+      c.attack = {};
+      c.attack.affinity = {};
+      c.attack.volley = _.parseInt(bracket.match(/\[(?<volley>\d+)/).groups.volley);
+      c.attack.battery = 1;
+      c.attack.channel = "hitpoints";
+
+      if(/target\s+\d+/.test(bracket)) {
+        c.attack.target = _.parseInt(bracket.match(/target\s+(?<tar>\d+)/).groups.tar) * 10;
+      }
+
+      if(/\s+long/.test(bracket)) {
+        c.attack.long = true;
+      }
+
+      if(/ammo\s+\d+\s*/.test(bracket)) {
+        c.attack.ammo = _.parseInt(bracket.match(/ammo\s+(?<ammo>\d+)/).groups.ammo);
+      }
+
+      if(/yield\s+\d+/.test(bracket)) {
+        c.attack.yield = _.parseInt(bracket.match(/yield\s+(?<yield>\d+)/).groups.yield) * 10;
+      }
+
+      if(/mis..../.test(bracket)) {
+        c.attack.battery = c.attack.volley;
+        c.attack.volley = _.parseInt(bracket.match(/mis..(?<packet>.)./).groups.packet,16);
+      }
+
+      if(/multi\s+\d+/.test(bracket)) {
+        var packet = _.parseInt(bracket.match(/multi\s+(?<packet>\d+)/).groups.packet);
+        c.attack.battery = c.attack.volley / packet;
+        c.attack.volley = packet;
+        console.log(c.attack);
+      }
+
+      if(/vibro/.test(bracket)) {
+        c.attack.vibro = true;
+      }
+
+      if(/meson/.test(bracket)) {
+        c.attack.meson = true;
+      }
+
+      if(/low/.test(bracket)) {
+        c.attack.low = true;
+      }
+
+      if(/heat/.test(bracket)) {
+        c.attack.heat = true;
+      }
+
+      if(/crack/.test(bracket)) {
+        c.attack.crack = true;
+      }
+
+      if(/global/.test(bracket)) {
+        c.attack.global = true;
+      }
+
+      if(/offline/.test(bracket)) {}
+
+      if(/pen/.test(bracket)) {
+        c.attack.penetrate = true;
+      }
+
+      // Check if the bracket has a hull search
+      // hull A B
+      // A := center point of search
+      // B := steps away from center point that will match
+      if(/hull\s+\d+\s+\d+/.test(bracket)) {}
+
+      // Check for anti-fighter only targeting
+      if(/af/.test(bracket)) {}
+
+      // Check for artillery tag
+      // These units can fire from the back (reserve) of the group
+      if(/artillery/.test(bracket)) {}
+
+      // Check if the weapon is a shield cracker
+      if(/crack/.test(bracket)) {}
+
+      // Check if the bracket is in a datalink
+      if(/dl\s*\w*\s*/.test(bracket)) {}
+
+      // Check if the bracket is a field effect
+      if(/field/.test(bracket)) {
+        c.attack.field = true;
+      }
+
+      // Check if the bracket is flak
+      if(/flak/.test(bracket)) {}
+
+      // Check if the bracket has a rate of fire
+      // rof A B
+      // A := Reload Delay
+      // B := First Shot Delay
+      // For example, rof 2 0 fires every other round and starts round 1
+      // To continue, rof 2 1 fires every other round and starts round 2
+      if(/rof\s*\d*\s*\d*/.test(bracket)) {
+        // How to mondel this?
+      }
+
+      // Check if the brack has a scan
+      // scan A B
+      // A := targeting value (center point)
+      // B := scope of search (deviation from center point)
+      if(/scan\s+\d+\s+\d+/.test(bracket)) {
+        var scan = bracket.match(/scan\s*(?<center>\d*)\s*(?<scope>\d*/).groups;
+        c.attack.affinity.center = _.parseInt(scan.center);
+        c.attack.affinity.scope = _.parseInt(scan.scope);
+      }
+
+      return c;
+    }
+
     services.parseFots = function(udl) {
       // Split the UDL by the 'commas'
       var rawParts = _.split(udl,",");
@@ -75,6 +193,29 @@
 
         if(/^\s*HULL\s+(\d+)\s+(\d+)\s+/.test(nonBracket)) {}
 
+        // Check if the unit has a TIME tag
+        // TIME A
+        // A := Unit flees after A rounds
+        if(/^\s*TIME\s+\d+/.test(nonBracket)) {}
+
+        // Check if the unit has a DELAY tag
+        // DELAY A
+        // A := Unit enters combat after A rounds
+        if(/^\s*DELAY\s+\d+/.test(nonBracket)) {}
+
+        // Check if the unit has a personal break off tag
+        // DAMAGE A
+        // A := Amount of hitpoints left
+        // A=100 is fight until shields are depleted
+        // A=50 is fight until half of hull is depleted
+        // A=150 is fight until half of shields are depleted
+
+        // Check if the unit has a fleet break off tag
+        // BREAK A
+        // A := the morale of the unit
+        // A=100 means fight to the last man
+        // A=50 means fight till half the total hull of the fleet is gone
+
         // Fill out a unit object
         var u = objectFactory.newUnit();
 
@@ -116,68 +257,21 @@
         }
 
         _.forEach(brackets,function(bracket) {
-          var c = objectFactory.newComponent();
-          c.name = "attack";
-          c.crit = "battery";
-          c.attack = {};
-          c.attack.volley = _.parseInt(bracket.match(/\[(?<volley>\d+)/).groups.volley);
-          c.attack.channel = "hitpoints";
-
-          if(/target\s+\d+/.test(bracket)) {
-            c.attack.target = _.parseInt(bracket.match(/target\s+(?<tar>\d+)/).groups.tar) * 10;
+          var c = buildAttack(bracket);
+          // If the component is a battery (multi) then duplicate it
+          if(c.attack.battery == 1) {
+            // Just one battery, input the component
+            u.components.push(c);
           }
-
-          if(/\s+long/.test(bracket)) {
-            c.attack.long = true;
+          else {
+            // Multiple batteries, duplicate the component and add each battery individually
+            var battery = c.attack.battery;
+            for(i = 0;i < battery;i++) {
+              var cc = _.cloneDeep(c);
+              cc.attack.battery = 1;
+              u.components.push(cc);
+            }
           }
-
-          if(/ammo\s+\d+\s*/.test(bracket)) {
-            c.attack.ammo = _.parseInt(bracket.match(/ammo\s+(?<ammo>\d+)/).groups.ammo);
-          }
-
-          if(/yield\s+\d+/.test(bracket)) {
-            c.attack.yield = _.parseInt(bracket.match(/yield\s+(?<yield>\d+)/).groups.yield) * 10;
-          }
-
-          if(/mis..../.test(bracket)) {
-            c.attack.packet = _.parseInt(bracket.match(/mis..(?<packet>.)./).groups.packet,16);
-          }
-
-          if(/multi\s+\d+/.test(bracket)) {
-            var packet = _.parseInt(bracket.match(/multi\s+(?<packet>\d+)/).groups.packet);
-          }
-
-          if(/vibro/.test(bracket)) {
-            c.attack.vibro = true;
-          }
-
-          if(/meson/.test(bracket)) {
-            c.attack.meson = true;
-          }
-
-          if(/low/.test(bracket)) {
-            c.attack.low = true;
-          }
-
-          if(/heat/.test(bracket)) {
-            c.attack.heat = true;
-          }
-
-          if(/crack/.test(bracket)) {
-            c.attack.crack = true;
-          }
-
-          if(/global/.test(bracket)) {
-            c.attack.global = true;
-          }
-
-          if(/offline/.test(bracket)) {}
-
-          if(/pen/.test(bracket)) {}
-
-          if(/hull\s+\d+\s+\d+/.test(bracket)) {}
-
-          u.components.push(c);
         });
 
         if(!_.isArray(brackets) && parts.beam != 0) {
