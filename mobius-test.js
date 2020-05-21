@@ -248,6 +248,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         var active = state.targets.active;
         state.targets.active = state.targets.long;
         combatTurn(state);
+        combatLog.push(state);
         state.targets.active = active;
 
         prevState = state;
@@ -529,7 +530,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       _.forEach(list,function(unit) {
         //var unit = state.targets.master[u];
         var stats = unitStats(unit);
-        var msg = log(`${unit.info.name} has ${stats.hull} hull and ${stats.shield} shields`);
+        var msg = log(`${unit.info.name} Sh=${stats.shield} Hl=${stats.hull}`);
         state.log.push(msg);
 
         var crits = doCrit(state,unit);
