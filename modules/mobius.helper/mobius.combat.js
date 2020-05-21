@@ -85,6 +85,9 @@
     };
 
     /* doDamage - This function applies damage to a unit.
+     * Special Modes
+     *  God Mode - the damage is applied directly to the target without other effects
+     *      mode.god = true
     */
     services.doDamage = function(data) {
       var target = data.target;
@@ -101,31 +104,35 @@
       // Displacement is considered first, then if the attack did actually land,
       // deflect is used to remove a constant amount.
 
-      // Check if the unit has displacement
-      var missed = false;
-      if(_.isNumber(target.state.displacement)) {
-        // Roll the chance to miss
-        var toMiss = _.random(1,1000,false);
+    if(!data.mode.god) {
+        // Check if the unit has displacement
+        var missed = false;
+        if(_.isNumber(target.state.displacement)) {
+          // Roll the chance to miss
+          var toMiss = _.random(1,1000,false);
 
-        // Did the hit really miss!?
-        missed = (toMiss < target.state.displacement);
-        results.displaced = true;
+          // Did the hit really miss!?
+          missed = (toMiss < target.state.displacement);
+          results.displaced = true;
+        }
+        // Check if we missed again...
+        if(!missed) {
+          // Does the unit posses deflect?
+          var block = _.isNumber(target.state.deflect) ? target.state.deflect : 0;
+          results.blocked = block;
+
+          // Determine damage after deflect
+          damage -= block;
+          damage = damage < 0 ? 0 : damage;
+
+          // Save the end damage to the result set
+          results.damage = damage;
+        }
       }
-      // Check if we missed again...
-      if(!missed) {
-        // Does the unit posses deflect?
-        var block = _.isNumber(target.state.deflect) ? target.state.deflect : 0;
-        results.blocked = block;
 
-        // Determine damage after deflect
-        damage -= block;
-        damage = damage < 0 ? 0 : damage;
-
-        // Save the end damage to the result set
-        results.damage = damage;
-      }
-
-      // Apply the damage to the unit
+      // Apply the damage to the target
+      var remainder = damage;
+      _.forEach(target.pools,function() {});
 
       // Return the results and any errors
       return {

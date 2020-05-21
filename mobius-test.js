@@ -537,7 +537,10 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         _.forEach(crits,function(crit) {
           var msg = log(`${unit.info.name} has suffered a critical hit: ${crit.text}`);
           state.log.push(msg);
-          if(crit.action === "dmg") {
+          if(crit.action === "death") {
+            unit.state.active = false;
+          }
+          else if(crit.action === "dmg") {
           }
         });
 
