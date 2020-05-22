@@ -220,6 +220,7 @@
 
         // Fill out a unit object
         var u = objectFactory.newUnit();
+        u.info.tags = parts.tags;
 
         u.info.name = parts.name;
         u.info.size = parts.hull;

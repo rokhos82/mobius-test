@@ -30,7 +30,7 @@
 
     $ctrl.critTable = initializeCritTable();
 
-    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v 0.2.0";
+    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v 0.2.1";
     $ctrl.output = [];
     $ctrl.combatLog = {
       turns: []
@@ -69,7 +69,7 @@ Red One 2,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
 Red One 3,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15`;
 
     $ctrl.blueFleetUdl = `Blue 2,1,2,3,4
-Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`;
+Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35] DEFENSE 15 AR 2`;
 
     $ctrl.$onInit = function() {
       $ctrl.groups = {};
@@ -547,8 +547,8 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         //var unit = state.targets.master[u];
         var stats = unitStats(unit);
         unit.state.stats = stats;
-        var msg = log(`${unit.info.name} Sh=${stats.shield} Hl=${stats.hull}`);
-        state.log.push(msg);
+        //var msg = log(`${unit.info.name} Sh=${stats.shield} Hl=${stats.hull}`);
+        //state.log.push(msg);
 
         var crits = doCrit(state,unit);
         _.forEach(crits,function(crit) {
@@ -605,6 +605,15 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       ct.maxRoll = ct.results.length - 1;
 
       return ct;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // makeFOTSUdl - this function takes a unit object and creates a FOTS
+    //  UDL from that object
+    ////////////////////////////////////////////////////////////////////////////
+    function makeFOTSUdl(unit) {
+      var udl = `${unit.info.name},${unit.state.stats.beam},${unit.state.stats.shield}`;
+      return udl;
     }
   }
 })();

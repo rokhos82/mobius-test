@@ -1,28 +1,20 @@
-<div>
-  <fieldset>
-    <legend>Blue Team</legend>
-    <table class="results-table">
-      <tr><td>Unit</td><td>Bm</td><td>Sh</td><td>Tp</td><td>Hl</td></tr>
-      <tr ng-repeat="unit in $ctrl.state.groups.blue.units" ng->
-        <td>{{unit.info.name}}</td>
-        <td>{{unit.state.stats.beam}}</td>
-        <td>{{unit.state.stats.shield}}</td>
-        <td>{{unit.state.stats.torp}}</td>
-        <td>{{unit.state.stats.hull}}</td>
-      </tr>
-    </table>
-  </fieldset>
-  <fieldset>
-    <legend>Red Team</legend>
-    <table class="results-table">
-      <tr><td>Unit</td><td>Bm</td><td>Sh</td><td>Tp</td><td>Hl</td></tr>
-      <tr ng-repeat="unit in $ctrl.state.groups.red.units" ng->
-        <td>{{unit.info.name}}</td>
-        <td>{{unit.state.stats.beam}}</td>
-        <td>{{unit.state.stats.shield}}</td>
-        <td>{{unit.state.stats.torp}}</td>
-        <td>{{unit.state.stats.hull}}</td>
-      </tr>
-    </table>
-  </fieldset>
-</div>
+<table class="results-table" ng-if="$ctrl.isPre">
+  <tr class="results-table-head"><td>Unit</td><td>Bm</td><td>Sh</td><td>Tp</td><td>Hl</td></tr>
+  <tr ng-repeat="unit in $ctrl.group.units">
+    <td>{{unit.info.name}}</td>
+    <td>{{unit.state.initStats.beam}}</td>
+    <td>{{unit.state.initStats.shield}}</td>
+    <td>{{unit.state.initStats.torp}}</td>
+    <td>{{unit.state.initStats.hull}}</td>
+  </tr>
+</table>
+<table class="results-table" ng-if="!$ctrl.isPre">
+  <tr class="results-table-head"><td>Unit</td><td>Bm</td><td>Sh</td><td>Tp</td><td>Hl</td></tr>
+  <tr ng-repeat="unit in $ctrl.group.units">
+    <td>{{unit.info.name}}</td>
+    <td>{{unit.state.stats.beam}}</td>
+    <td>{{unit.state.stats.shield}}</td>
+    <td>{{unit.state.stats.torp}}</td>
+    <td>{{unit.state.stats.hull}}</td>
+  </tr>
+</table>
