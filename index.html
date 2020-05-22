@@ -56,6 +56,7 @@
         <div ng-repeat="turn in $ctrl.combatLog.turns" class="result-turn-block">
           <span class="result-turn-title">Battle Round {{$index+1}}</span>
           <div ng-repeat="entry in turn.log" class="{{entry.klass}} log-entry-hover">{{entry.text}}</div>
+          <results-table state="turn"></results-table>
         </div>
       </container>
     </container>
@@ -67,5 +68,6 @@
     <script src="modules/mobius.helper/mobius.combat.js"></script>
     <script src="mobius-test.js"></script>
     <script src="components/unitCard.js"></script>
+    <script src="components/resultsTable.js"></script>
   </body>
 </html>

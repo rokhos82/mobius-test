@@ -9,6 +9,7 @@
       var c = objectFactory.newComponent();
       c.name = "attack";
       c.crit = "battery";
+      c.type = "beam";
       c.attack = {};
       c.attack.affinity = {};
       c.attack.volley = _.parseInt(bracket.match(/\[(?<volley>\d+)/).groups.volley);
@@ -32,6 +33,7 @@
       }
 
       if(/mis..../.test(bracket)) {
+        c.type = "torp";
         c.attack.battery = c.attack.volley;
         c.attack.volley = _.parseInt(bracket.match(/mis..(?<packet>.)./).groups.packet,16);
       }

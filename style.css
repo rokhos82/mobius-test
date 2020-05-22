@@ -288,3 +288,18 @@ container {
   font-variant: small-caps;
   font-weight: bold;
 }
+
+.results-table {
+  display: inline-block;
+  padding: 0px;
+  margin: 5px;
+  border-collapse: collapse;
+  border: 1px solid orange;
+}
+
+.results-table tr,td {
+  border-collapse: collapse;
+  border: 1px solid orange;
+  text-align: center;
+  padding: 2px;
+}

@@ -30,7 +30,7 @@
 
     $ctrl.critTable = initializeCritTable();
 
-    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v 0.1.8";
+    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v 0.2.0";
     $ctrl.output = [];
     $ctrl.combatLog = {
       turns: []
@@ -293,13 +293,28 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         stats[h.name] = _.has(stats,h.name) ? stats[h.name] + h.health.remaining : h.health.remaining;
       });
 
+      var atk = _.filter(unit.components,'attack');
+      var bm = 0;
+      var tp = 0;
+      _.forEach(atk,function(a) {
+        if(a.type === "beam") {
+          bm += a.attack.volley;
+        }
+        else if(a.type === "torp") {
+          tp += a.attack.volley;
+        }
+      });
+
+      stats.beam = bm;
+      stats.torp = tp;
+
       return stats;
     }
 
     function deathCheck(unit) {
       var ded = false;
 
-      if(_.last(unit.state.pools).remaining <= 0) {
+      if(_.last(unit.state.pools).remaining <= 0 || unit.state.dead) {
         ded = true;
         unit.state.active = false;
       }
@@ -386,12 +401,13 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
     }
 
     ////////////////////////////////////////////////////////////////////////////
-    //  combatTurn - this is the main combat event loop processor.
+    //  combatTurn - this is the main combat event loop processor //////////////
     ////////////////////////////////////////////////////////////////////////////
     function combatTurn(state,prevState) {
       // Loop through all of the active units and process their turns
       _.forEach(state.targets.active,function(u) {
         var unit = state.targets.master[u];
+        unit.state.initStats = unitStats(unit);
 
         processUnit(unit,state);
       });
@@ -530,6 +546,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       _.forEach(list,function(unit) {
         //var unit = state.targets.master[u];
         var stats = unitStats(unit);
+        unit.state.stats = stats;
         var msg = log(`${unit.info.name} Sh=${stats.shield} Hl=${stats.hull}`);
         state.log.push(msg);
 
@@ -538,7 +555,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
           var msg = log(`${unit.info.name} has suffered a critical hit: ${crit.text}`);
           state.log.push(msg);
           if(crit.action === "death") {
-            unit.state.active = false;
+            unit.state.dead = true;
           }
           else if(crit.action === "dmg") {
           }
