@@ -16,7 +16,34 @@
       },
       "pools": [],
       "attacks": [],
-      "crits": [1,2,3,4,5]
+      "crits": [1,2,3,4,5],
+      "state": {
+        active: true,
+        flee: false,
+        effects: {},
+        pools: [],
+        attacks: [],
+        crits: [1,2,3,4,5]
+      }
+    };
+
+    var unitObject2 = {
+      "info": {
+        "name": "",
+        "type": "",
+        "size": 0
+      },
+      "components": [],
+      "channels": {},
+      "state": {
+        active: true,
+        flee: false,
+        effects: {
+          defense: 0
+        },
+        pools: [],
+        actions: []
+      }
     };
 
     var componentObject = {
@@ -31,8 +58,22 @@
 
     var critObject = {};
 
+    var unitLog = {
+      uuid: "",
+      actions: [], // Things the unit did
+      effects: [] // Things done to the unit
+    };
+
+    // Valid verbs: attack, flee
+    var unitAction = {
+      actor: "", // UUID of the actor
+      target: "", // UUID of the target
+      verb: "",
+      data: {} // specifics vary depending on the verb
+    };
+
     services.newUnit = function() {
-      return _.cloneDeep(unitObject);
+      return _.cloneDeep(unitObject2);
     };
 
     services.newComponent = function() {
@@ -46,6 +87,14 @@
     services.newCrit = function() {
       return _.cloneDeep(critObject);
     };
+
+    services.newUnitLog = function() {
+      return _.cloneDeep(unitLog);
+    }
+
+    services.newUnitAction = function() {
+      return _.cloneDeep(unitAction);
+    }
 
     return services;
   }

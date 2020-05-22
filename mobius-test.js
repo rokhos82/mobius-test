@@ -1,7 +1,7 @@
 (function() {
   var app = angular.module("mobius-test",["mobius.helper","ce.service.uuid"]);
 
-  app.controller("mtCtrl",["$scope","mobius.helper.udlParser","mobius.helper.fleetParser","UuidService",controller]);
+  app.controller("mtCtrl",["$scope","mobius.helper.udlParser","mobius.helper.fleetParser","UuidService","mobius.helper.combat",controller]);
 
   var outputItem = {
     klass: "log-entry-info",
@@ -15,14 +15,22 @@
     return entry;
   }
 
+  function logErrors(errors) {
+    var entries = [];
+    _.forEach(errors,function(e) {
+      entries.push(log(e,"log-entry-important"));
+    });
+    return entries;
+  }
+
   var combat = {};
 
-  function controller($scope,udlParser,fleetParser,uuid) {
+  function controller($scope,udlParser,fleetParser,uuid,combat) {
     var $ctrl = this;
 
     $ctrl.critTable = initializeCritTable();
 
-    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v 0.1.6";
+    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v 0.2.2";
     $ctrl.output = [];
     $ctrl.combatLog = {
       turns: []
@@ -30,13 +38,12 @@
     $ctrl.displayResults = false;
 
     $ctrl.udl = "Red One 1,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15";
-    $ctrl.parsedExample = udlParser.parseFots($ctrl.udl);
+    $ctrl.parsedExample = udlParser.parseFots($ctrl.udl).unit;
 
     $ctrl.fleetUdl = `The Big Ones,1,2,3,4
 Red One 1,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15
 Red One 2,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15
 Red One 3,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
-    //$ctrl.parseFleet = fleetParser.parseFots($ctrl.fleetUdl);
 
     $ctrl.exampleUnit = {
       "name": "Red One 1",
@@ -57,24 +64,26 @@ Red One 3,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
     $ctrl.blueExample = `{"name":"Blue Two","units":[{"name": "Blue Two 1","size": 6,"type": "starship","components": [{"name": "hull","crit": "unitBase","health": {"pool": 9,"priority": 1},"presence": {"magnitude": 6,"channel": 1}},{"name": "shield","crit": "shield","health": {"pool": 2,"priority": 2,"transfer": false},"energy": {"draw": 2}},{"name": "beam 1","crit": "battery","attack": {"volley": 7,"target": 350},"energy": {"draw": 7}},{"name": "beam 2","crit": "battery","attack": {"volley": 7,"target": 350},"energy": {"draw": 7}},{"name": "stl","crit": "engine","effects": {"defense": 150}},{"name": "lrs","crit": "sensor","sensor": {"strength": 1,"channel": 1,"resolution": 1},"energy": {"draw": 1}},{"name": "reactor","crit": "powerPlant","energy": {"capacity": 72}}]}]}`;
 
     $ctrl.redFleetUdl = `Red 1,1,2,3,4
-Red One 1,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
-Red One 2,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
-Red One 3,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15`;
+Red 1-1,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
+Red 1-2,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
+Red 1-3,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
+Red 1-4,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15`;
 
-    $ctrl.blueFleetUdl = `Blue 2,1,2,3,4
-Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`;
+    $ctrl.blueFleetUdl = `Blue 2,75,4,60
+Blue 1-1,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2
+Blue 1-2,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2
+Blue 1-3,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2
+Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
 
     $ctrl.$onInit = function() {
-      $ctrl.groups = {
-        //blue: angular.fromJson($ctrl.blueExample),
-        //blue: fleetParser.parseFots($ctrl.blueFleetUdl),
-        //red: angular.fromJson($ctrl.redExample)
-        //red: fleetParser.parseFots($ctrl.redFleetUdl)
-      };
+      $ctrl.groups = {};
     };
 
     $ctrl.parseFleet = function(team,str) {
-      $ctrl.groups[team] = fleetParser.parseFots(str);
+      $ctrl.output.push(log(`Importing ${team} fleet file`));
+      var data = fleetParser.parseFots(str);
+      $ctrl.output = _.concat($ctrl.output,logErrors(data.errors));
+      $ctrl.groups[team] = data.group;
     };
 
     /* startCombat - this function is the onclick event for the start
@@ -129,7 +138,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
 
       // Get a list of targets for the red team
       _.forEach(settings.groups.blue.units,function(unit) {
-        //$ctrl.output.push(log(`Adding unit ${unit.name} to target list`,"log-entry-action"));
+        //$ctrl.output.push(log(`Adding unit ${unit.info.name} to target list`,"log-entry-action"));
         initializeUnit({
           unit: unit,
           team: "blue",
@@ -139,15 +148,13 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         targets.active.push(unit.uuid);
 
         var stats = unitStats(unit);
-        //var msg = log(`${unit.name} has ${stats.hull} hull and ${stats.shield} shields`);
-        //$ctrl.output.push(msg);
       });
 
       settings.groups.blue.targets = targets.blue;
 
       // Get a list of targets for the blue team
       _.forEach(settings.groups.red.units,function(unit) {
-        //$ctrl.output.push(log(`Adding unit ${unit.name} to target list`,"log-entry-action"));
+        //$ctrl.output.push(log(`Adding unit ${unit.info.name} to target list`,"log-entry-action"));
         initializeUnit({
           unit: unit,
           team: "red",
@@ -157,8 +164,6 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         targets.active.push(unit.uuid);
 
         var stats = unitStats(unit);
-        //var msg = log(`${unit.name} has ${stats.hull} hull and ${stats.shield} shields`);
-        //$ctrl.output.push(msg);
       });
 
       settings.groups.red.targets = targets.red;
@@ -166,8 +171,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       return targets;
     }
 
-    /*
-     *  initializeUnit() - this function prepares a unit object for use by the
+    /* initializeUnit() - this function prepares a unit object for use by the
      * combat engine.  THis includes additional linking between groups
      * and target lists, setting defaults in components, etc.
      */
@@ -189,28 +193,28 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         if(_.has(c,'attack')) {
           c.attack.target = _.isNumber(c.attack.target) ? c.attack.target : 0;
           c.attack.yield = _.isNumber(c.attack.yield) ? c.attack.yield : 0;
-          unit.attacks.push(c);
+          unit.state.actions.push(c);
         }
         if(_.has(c,'effects.defense')) {
-          unit.effects.defense += c.effects.defense;
+          unit.state.effects.defense += c.effects.defense;
         }
         if(_.has(c,'effects.ar')) {
-          unit.effects.ar += c.effects.ar;
+          unit.state.effects.ar += c.effects.ar;
         }
         if(_.has(c,'health') && c.health.pool != 0) {
           c.health.remaining = c.health.pool;
           c.health.deflect = _.has(c,'effects.deflect') ? c.effects.deflect : 0;
-          unit.pools.push(c.health);
+          unit.state.pools.push(c.health);
         }
       });
 
       // Sort by priority then pool size.  Then reverse the order so that
       // higher priority pools are listed first.
-      unit.pools = _.reverse(_.sortBy(unit.pools,['priority','pool']));
+      unit.state.pools = _.reverse(_.sortBy(unit.state.pools,['priority','pool']));
 
       // Setup the crit array with hull values
       // use the lowest priority pool as it should be the hull for FOTS.
-      var pool = _.last(unit.pools);
+      var pool = _.last(unit.state.pools);
       unit.crits = [
         _.round(pool.remaining * .8),
         _.round(pool.remaining * .6),
@@ -235,7 +239,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
 
       var done = false;
       var count = 0;
-      var limit = 1000;
+      var limit = 100;
       var state = _.cloneDeep(environment);
       var prevState = _.cloneDeep(environment);
       var combatLog = [];
@@ -248,6 +252,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         var active = state.targets.active;
         state.targets.active = state.targets.long;
         combatTurn(state);
+        combatLog.push(state);
         state.targets.active = active;
 
         prevState = state;
@@ -292,14 +297,30 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
         stats[h.name] = _.has(stats,h.name) ? stats[h.name] + h.health.remaining : h.health.remaining;
       });
 
+      var atk = _.filter(unit.components,'attack');
+      var bm = 0;
+      var tp = 0;
+      _.forEach(atk,function(a) {
+        if(a.type === "beam") {
+          bm += a.attack.volley;
+        }
+        else if(a.type === "torp") {
+          tp += a.attack.volley;
+        }
+      });
+
+      stats.beam = bm;
+      stats.torp = tp;
+
       return stats;
     }
 
     function deathCheck(unit) {
       var ded = false;
 
-      if(_.last(unit.pools).remaining <= 0) {
+      if(_.last(unit.state.pools).remaining <= 0 || unit.state.dead) {
         ded = true;
+        unit.state.active = false;
       }
 
       return ded;
@@ -310,7 +331,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
     */
     function doCrit(state,unit) {
       var crit = [];
-      var remaining = _.last(unit.pools).remaining;
+      var remaining = _.last(unit.state.pools).remaining;
 
       if(_.isNumber(unit.crits[0]) && remaining <= unit.crits[0]) {
         // Crit #1
@@ -369,7 +390,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
 
       _.forEach(state.targets.master,function(unit) {
         var l = false;
-        _.forEach(unit.attacks,function(attack) {
+        _.forEach(unit.state.actions,function(attack) {
           if(_.has(attack,'attack.long')) {
             long = true;
             l = true;
@@ -383,101 +404,117 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       return long;
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    //  combatTurn - this is the main combat event loop processor //////////////
+    ////////////////////////////////////////////////////////////////////////////
     function combatTurn(state,prevState) {
+      // Loop through all of the active units and process their turns
       _.forEach(state.targets.active,function(u) {
         var unit = state.targets.master[u];
-        var msg = `Planning turn for ${unit.name}`;
-        //$ctrl.output.push(log(msg,"log-entry-purple"));
-        state.log.push(log(msg,"log-entry-purple"));
-        // Need to make this a permanent entry into a combat action log
 
-        // Get the list of attacks a unit can make
-        var actions = _.filter(unit.components,'attack');
-
-        // Choose a target or targets
-        var attacks = [];
-        _.forEach(actions,function(a) {
-          var t = _.sample(state.targets[unit.team]);
-          var target = state.targets.master[t];
-          attacks.push({
-            actor: unit.uuid,
-            target: t,
-            action: a.name
-          });
-          var msg = log(`${unit.name} is targeting ${target.name}`,"log-entry-action")
-          //$ctrl.output.push(msg);
-          state.log.push(msg);
-        });
-
-        state.attacks = _.concat(state.attacks,attacks);
-
-        // Attack said target(s)
-        _.forEach(attacks,function(a) {
-          // Roll for to hit and then damage
-          var hit = _.random(1,1000,false);
-          var def = _.random(1,1000,false);
-
-          var actor = state.targets.master[a.actor];
-          var target = state.targets.master[a.target];
-          var attack = _.filter(actor.components,['name',a.action])[0].attack;
-
-          // I should determine target here not earlier....the earlier loop is unnecessary!
-          var msg = log(`${actor.name} is attacking ${target.name} with ${a.action}`,"log-entry-green");
-          //$ctrl.output.push(msg);
-          state.log.push(msg);
-
-          hit = hit + attack.target;
-          a.hit = hit;
-          var msg = log(`${actor.name} rolled a hit roll of ${hit} (${attack.target})`);
-          //$ctrl.output.push(msg);
-          state.log.push(msg);
-
-          def = def + target.effects.defense;
-          a.def = def;
-          var msg = log(`${actor.name} rolled a def roll of ${def} (${target.effects.defense})`);
-          //$ctrl.output.push(msg);
-          state.log.push(msg);
-
-          if(hit > def) {
-            // Yay a hit!
-            msg = log(`${actor.name} successfully hit ${target.name}`);
-            //$ctrl.output.push(msg);
-            state.log.push(msg);
-
-            // Roll damage
-            var dmgRoll = _.random(1,1000,false) + attack.yield;
-            dmgRoll = dmgRoll > 1000 ? 1000 : dmgRoll;
-            dmgRoll = dmgRoll < 0 ? 0 : dmgRoll;
-            var dmg = _.round(attack.volley * dmgRoll / 1000);
-            a.damage = dmg;
-            var msg = log(`${actor.name} did ${dmg} damage to ${target.name}`,"log-entry-green");
-            //$ctrl.output.push(msg);
-            state.log.push(msg);
-          }
-          else {
-            // Slippery little devil
-            msg = log(`${actor.name} did not hit ${target.name}`,"log-entry-warn");
-            //$ctrl.output.push(msg);
-            state.log.push(msg);
-          }
-        });
+        processUnit(unit,state);
       });
 
+      // Determine and apply the final results of the actions queue from
+      // above
+      applyEffects(state);
+
+      // Cleanup dead units and anything else
+      turnCleanup(state);
+    }
+
+    /* processUnit - perform actions that the unit can take
+    */
+    function processUnit(unit,state) {
+      // Get the list of attacks a unit can make
+      var actions = _.filter(unit.components,'attack');
+      unit.state.initStats = unitStats(unit);
+
+      // Choose a target or targets
+      var attacks = [];
+      _.forEach(actions,function(a) {
+        var t = _.sample(state.targets[unit.team]);
+        var target = state.targets.master[t];
+        attacks.push({
+          actor: unit.uuid,
+          target: t,
+          action: a.name
+        });
+        //var msg = log(`${unit.info.name} is targeting ${target.info.name}`,"log-entry-action")
+        //state.log.push(msg);
+      });
+
+      state.attacks = _.concat(state.attacks,attacks);
+
+      // Attack said target(s)
+      _.forEach(attacks,function(a) {
+        // Roll for to hit and then damage
+        var hit = _.random(1,1000,false);
+        var def = _.random(1,1000,false);
+
+        var actor = state.targets.master[a.actor];
+        var target = state.targets.master[a.target];
+        var attack = _.filter(actor.components,['name',a.action])[0].attack;
+
+        // I should determine target here not earlier....the earlier loop is unnecessary!
+        //var msg = log(`${actor.info.name} is attacking ${target.info.name} with ${a.action}`,"log-entry-green");
+        //state.log.push(msg);
+
+        // Hand off the attack to the combat helper
+        var results = combat.doAttack({
+          actor: actor,
+          target: target,
+          attack: attack,
+          mode: "limit",
+          limit: 500
+        });
+
+        a.results = results.results;
+
+        if(results.results.success) {
+          var msg = log(`${actor.info.name} fires on ${target.info.name} scoring ${results.results.damage} hits!`,"log-entry-green");
+          state.log.push(msg);
+        }
+        else {
+          var msg = log(`${actor.info.name} fires on ${target.info.name} and misses.`,"log-entry-warn");
+          state.log.push(msg);
+        }
+      });
+    }
+
+    /* selectTarget -
+    */
+    function selectTarget(unit,state) {
+      var t = _.sample(state.targets[unit.team]);
+      var target = state.targets.master[t];
+
+      var msg = log(`${unit.info.name} is targeting ${target.info.name}`,"log-entry-action");
+      state.log.push(msg);
+
+      return {
+        actor: unit.uuid,
+        target: t,
+        action: a.name
+      };
+    }
+
+    /* applyEffects - make the things stick!
+    */
+    function applyEffects(state) {
       // Do turn cleanup
       _.forEach(state.attacks,function(attack) {
         // Apply damage as necessary
-        if(attack.damage) {
+        if(attack.results.damage) {
           var target = state.targets.master[attack.target];
           // Get all health pools
-          var pools = target.pools;
-          var remainder = attack.damage;
+          var pools = target.state.pools;
+          var remainder = attack.results.damage;
           // If there are any hitpoints left in a pool, apply damage
           _.forEach(pools,function(p) {
             var deflect = p.deflect;
             if(deflect > 0) {
               remainder = ((remainder - deflect) > 0) ? (remainder - deflect) : 0;
-              var msg = log(`${target.name} deflects ${deflect} damage leaving ${remainder} damage`,"log-entry-warn");
-              //$ctrl.output.push(msg);
+              var msg = log(`${target.info.name} deflects ${deflect} damage leaving ${remainder} damage`,"log-entry-warn");
               state.log.push(msg);
             }
             if(remainder > 0 && p.remaining > 0) {
@@ -499,26 +536,37 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
           });
         }
       });
+    }
 
+    /* turnCleanup - end of turn house keeping
+    */
+    function turnCleanup(state) {
       // Decide who is now dead
       var removal = [];
-      _.forEach(state.targets.master,function(unit) {
+
+      // Get the list of active units
+      var list = _.filter(state.targets.master,['state.active',true]);
+
+      _.forEach(list,function(unit) {
         //var unit = state.targets.master[u];
         var stats = unitStats(unit);
-        var msg = log(`${unit.name} has ${stats.hull} hull and ${stats.shield} shields`);
-        //$ctrl.output.push(msg);
-        state.log.push(msg);
+        unit.state.stats = stats;
+        //var msg = log(`${unit.info.name} Sh=${stats.shield} Hl=${stats.hull}`);
+        //state.log.push(msg);
 
         var crits = doCrit(state,unit);
         _.forEach(crits,function(crit) {
-          var msg = log(`${unit.name} has suffered a critical hit: ${crit.text}`);
-          //$ctrl.output.push(msg);
+          var msg = log(`${unit.info.name} has suffered a critical hit: ${crit.text}`);
           state.log.push(msg);
+          if(crit.action === "death") {
+            unit.state.dead = true;
+          }
+          else if(crit.action === "dmg") {
+          }
         });
 
         if(deathCheck(unit)) {
-          var msg = log(`${unit.name} has been destroyed`,"log-entry-important");
-          //$ctrl.output.push(msg);
+          var msg = log(`${unit.info.name} has been destroyed`,"log-entry-important");
           state.log.push(msg);
 
           //state.targets.active = _.pull(state.targets.active,unit.uuid);
@@ -539,15 +587,21 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       _.pullAll(state.targets.active,removal);
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    //  initializeCritTable - this function sets up the critical hit tables
+    //    used by the combat engine.
+    ////////////////////////////////////////////////////////////////////////////
     function initializeCritTable() {
       var ct = {
         maxRoll: 0,
         results: [
           _.fill([1],{text:`Reactor Core Breach (Ship explodes)`,action:"death"}),
-          _.fill([2,3],{text:`Structural Collapse (+15% damage)`,action:"dmgAmp",mod:0.15}),
-          _.fill([4,5],{text:`Explosion Amidships (+10% damage)`,action:"dmgAmp",mod:0.1}),
-          _.fill([6,7],{text:`Superstructure Hit (+5% damage)`,action:"dmgAmp",mod:0.05}),
-          _.fill([8,9,10,11,12,13,14,15,16,17,18,19,20],{text:`Generic non-lethal crit`,action:"none"})
+          _.fill([2,3],{text:`Structural Collapse (+15% damage)`,action:"dmgAmp",dmgAmp:0.15}),
+          _.fill([4,5,6],{text:`Explosion Amidships (+10% damage)`,action:"dmgAmp",dmgAmp:0.1}),
+          _.fill([7,8,9,10,11,12],{text:`Superstructure Hit (+5% damage)`,action:"dmgAmp",dmgAmp:0.05}),
+          _.fill([13,14,15,16,17,18,19,20,21,22,23,24,25],{text:`Generic non-lethal crit +1 damage`,action:"dmg",dmg:1}),
+          _.fill([26,27,28,29,30,31,32,33],{text:`Generic non-lethal crit +2 damage`,action:"dmg",dmg:2}),
+          _.fill([34,35,36,37],{text:`Generic non-leathal crit +3 damage`,action:"dmg",dmg:3})
         ]
       };
 
@@ -555,6 +609,15 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[7 target 35][7 target 35] DEFENSE 15 AR 2`
       ct.maxRoll = ct.results.length - 1;
 
       return ct;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // makeFOTSUdl - this function takes a unit object and creates a FOTS
+    //  UDL from that object
+    ////////////////////////////////////////////////////////////////////////////
+    function makeFOTSUdl(unit) {
+      var udl = `${unit.info.name},${unit.state.stats.beam},${unit.state.stats.shield}`;
+      return udl;
     }
   }
 })();

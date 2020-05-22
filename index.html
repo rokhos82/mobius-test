@@ -15,13 +15,7 @@
         <p>I do not have all unit tags and features working yet. Right now the following items do work: non-missile weapons, shields, hull, defense, target, long, AR.</p>
         <p>Critical Hits are being generated but do not effect the unit at this time.</p>
         <h5>Next Steps</h5>
-        <p>My next steps are to get a better format for the combat results and to finish up critical hits.  After that I want to get missile-type weapons working and add any remaining tags to the UDL parser.
-        <h5>Parsed UDL</h5>
-        <pre>{{$ctrl.parsedExample | json}}</pre>
-        <h5>Example Unit</h5>
-        <pre>{{$ctrl.exampleUnit | json}}</pre>
-        <h5>Example Group</h5>
-        <pre>{{$ctrl.groups | json}}</pre>
+        <p>My next steps are to get a better format for the combat results and to finish up critical hits.  After that I want to get missile-type weapons working and add any remaining tags to the UDL parser.</p>
       </container>
       <container class="content">
         <div>
@@ -60,8 +54,16 @@
       <container class="results">
         <span class="title-text">Results</span>
         <div ng-repeat="turn in $ctrl.combatLog.turns" class="result-turn-block">
-          <span class="result-turn-title">Turn {{$index+1}}</span>
+          <span class="result-turn-title">Battle Round {{$index+1}}</span>
+          <fieldset class="results-field2">
+            <legend>Participating Units</legend>
+            <results state="turn" pre="true"></results>
+          </fieldset>
           <div ng-repeat="entry in turn.log" class="{{entry.klass}} log-entry-hover">{{entry.text}}</div>
+          <fieldset class="results-field2">
+            <legend>Surviving Units</legend>
+            <results state="turn"></results>
+          </fieldset>
         </div>
       </container>
     </container>
@@ -70,7 +72,10 @@
     <script src="modules/mobius.helper/unitFactory.js"></script>
     <script src="modules/mobius.helper/udlParser.js"></script>
     <script src="modules/mobius.helper/fleetParser.js"></script>
+    <script src="modules/mobius.helper/mobius.combat.js"></script>
     <script src="mobius-test.js"></script>
     <script src="components/unitCard.js"></script>
+    <script src="components/resultsTable.js"></script>
+    <script src="components/results.js"></script>
   </body>
 </html>

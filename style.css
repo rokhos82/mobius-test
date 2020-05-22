@@ -21,7 +21,7 @@ container {
 .container {
   display: grid;
   grid-template-columns: 1fr 3fr 1fr;
-  grid-template-rows: auto 600px auto;
+  grid-template-rows: auto 500px auto;
   column-gap: 5px;
   row-gap: 5px;
 }
@@ -287,4 +287,44 @@ container {
   font-size: 16pt;
   font-variant: small-caps;
   font-weight: bold;
+}
+
+.results-table {
+  display: table;
+  padding: 0px;
+  margin: 5px;
+  border-collapse: collapse;
+  border: 2px solid orange;
+  background-color: dimgrey;
+}
+
+.results-table tr,td {
+  border-collapse: collapse;
+  border: 1px solid orange;
+  text-align: center;
+  padding: 5px;
+  color: orange;
+}
+
+.results-table .results-table-head {
+  font-variant: small-caps;
+  background-color: #454545;
+}
+
+.results-table tr:hover {
+  background-color: #454545;
+}
+
+.results-field {
+  display: inline;
+  border: 2px solid orange;
+  color: orange;
+  border-radius: 10px;
+}
+
+.results-field2 {
+  border: 2px solid orange;
+  color: orange;
+  margin: 5px;
+  border-radius: 10px;
 }

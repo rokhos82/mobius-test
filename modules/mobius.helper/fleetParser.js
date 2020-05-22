@@ -6,6 +6,8 @@
     var services = {};
 
     services.parseFots = function(fleetString) {
+      var data = {};
+      data.errors = [];
       var fleet = factory.newFleet();
 
       var lines = _.split(fleetString,"\n");
@@ -16,10 +18,21 @@
       fleet.name = firstLine[0];
 
       _.forEach(unitLines,function(line) {
-        fleet.units.push(udl.parseFots(line));
+        var d = udl.parseFots(line);
+
+        if(d.errors.length == 0) {
+          fleet.units.push(d.unit);
+        }
+        else {
+          data.errors.push(d.errors);
+        }
       });
 
-      return fleet;
+      data.group = fleet;
+
+      data.errors = _.flatten(data.errors);
+
+      return data;
     };
 
     return services;
