@@ -30,7 +30,7 @@
 
     $ctrl.critTable = initializeCritTable();
 
-    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v 0.2.1";
+    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v 0.2.2";
     $ctrl.output = [];
     $ctrl.combatLog = {
       turns: []
@@ -64,12 +64,16 @@ Red One 3,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
     $ctrl.blueExample = `{"name":"Blue Two","units":[{"name": "Blue Two 1","size": 6,"type": "starship","components": [{"name": "hull","crit": "unitBase","health": {"pool": 9,"priority": 1},"presence": {"magnitude": 6,"channel": 1}},{"name": "shield","crit": "shield","health": {"pool": 2,"priority": 2,"transfer": false},"energy": {"draw": 2}},{"name": "beam 1","crit": "battery","attack": {"volley": 7,"target": 350},"energy": {"draw": 7}},{"name": "beam 2","crit": "battery","attack": {"volley": 7,"target": 350},"energy": {"draw": 7}},{"name": "stl","crit": "engine","effects": {"defense": 150}},{"name": "lrs","crit": "sensor","sensor": {"strength": 1,"channel": 1,"resolution": 1},"energy": {"draw": 1}},{"name": "reactor","crit": "powerPlant","energy": {"capacity": 72}}]}]}`;
 
     $ctrl.redFleetUdl = `Red 1,1,2,3,4
-Red One 1,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
-Red One 2,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
-Red One 3,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15`;
+Red 1-1,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
+Red 1-2,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
+Red 1-3,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
+Red 1-4,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15`;
 
-    $ctrl.blueFleetUdl = `Blue 2,1,2,3,4
-Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35] DEFENSE 15 AR 2`;
+    $ctrl.blueFleetUdl = `Blue 2,75,4,60
+Blue 1-1,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2
+Blue 1-2,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2
+Blue 1-3,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2
+Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
 
     $ctrl.$onInit = function() {
       $ctrl.groups = {};
@@ -407,7 +411,6 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35] DEFENSE 15 AR 2`;
       // Loop through all of the active units and process their turns
       _.forEach(state.targets.active,function(u) {
         var unit = state.targets.master[u];
-        unit.state.initStats = unitStats(unit);
 
         processUnit(unit,state);
       });
@@ -425,6 +428,7 @@ Blue One 1,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35] DEFENSE 15 AR 2`;
     function processUnit(unit,state) {
       // Get the list of attacks a unit can make
       var actions = _.filter(unit.components,'attack');
+      unit.state.initStats = unitStats(unit);
 
       // Choose a target or targets
       var attacks = [];

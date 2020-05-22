@@ -5,6 +5,9 @@
 
     $ctrl.$onInit = function() {
       $ctrl.isPre = ($ctrl.pre === "true");
+      $ctrl.units = _.filter($ctrl.group.units,function(unit) {
+        return unit.state.active;
+      });
     }
   }
 
