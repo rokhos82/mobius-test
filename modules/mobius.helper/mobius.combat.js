@@ -74,8 +74,16 @@
             var damage = _.round(attack.volley * damageRoll / 1000);
             results.damage = damage;
           }
+
+          // Spend one ammo point
+          if(_.has(attack,"ammo")) {
+            attack.ammo--;
+            results.ammo = attack.ammo;
+          }
         }
-        else {}
+        else {
+          results.success = false;
+        }
       }
 
       return {
@@ -132,7 +140,8 @@
 
       // Apply the damage to the target
       var remainder = damage;
-      _.forEach(target.pools,function() {});
+      _.forEach(target.pools,function(pool) {
+      });
 
       // Return the results and any errors
       return {

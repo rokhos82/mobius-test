@@ -24,7 +24,7 @@
         c.attack.long = true;
       }
 
-      if(/ammo\s+\d+\s*/.test(bracket)) {
+      if(/ammo\s+\d+/.test(bracket)) {
         c.attack.ammo = _.parseInt(bracket.match(/ammo\s+(?<ammo>\d+)/).groups.ammo);
       }
 
@@ -42,7 +42,6 @@
         var packet = _.parseInt(bracket.match(/multi\s+(?<packet>\d+)/).groups.packet);
         c.attack.battery = c.attack.volley / packet;
         c.attack.volley = packet;
-        console.log(c.attack);
       }
 
       if(/vibro/.test(bracket)) {

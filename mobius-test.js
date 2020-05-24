@@ -63,7 +63,7 @@ Red One 3,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
 
     $ctrl.blueExample = `{"name":"Blue Two","units":[{"name": "Blue Two 1","size": 6,"type": "starship","components": [{"name": "hull","crit": "unitBase","health": {"pool": 9,"priority": 1},"presence": {"magnitude": 6,"channel": 1}},{"name": "shield","crit": "shield","health": {"pool": 2,"priority": 2,"transfer": false},"energy": {"draw": 2}},{"name": "beam 1","crit": "battery","attack": {"volley": 7,"target": 350},"energy": {"draw": 7}},{"name": "beam 2","crit": "battery","attack": {"volley": 7,"target": 350},"energy": {"draw": 7}},{"name": "stl","crit": "engine","effects": {"defense": 150}},{"name": "lrs","crit": "sensor","sensor": {"strength": 1,"channel": 1,"resolution": 1},"energy": {"draw": 1}},{"name": "reactor","crit": "powerPlant","energy": {"capacity": 72}}]}]}`;
 
-    $ctrl.redFleetUdl = `Red 1,1,2,3,4
+    $ctrl.redFleetUdl = `Red 1,75,4,36
 Red 1-1,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
 Red 1-2,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
 Red 1-3,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
@@ -100,7 +100,7 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
 
       // Start the main combat loop
       $ctrl.combatLog.turns = doCombat(environment);
-      console.log($ctrl.combatLog);
+      //console.log($ctrl.combatLog);
 
       // Finish up combat logs
       $ctrl.displayResults = true;
@@ -381,9 +381,10 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
       return done;
     }
 
-    /* longCheck - checks to see if there are any long range capable units
-     * involved in the combat
-     */
+    ////////////////////////////////////////////////////////////////////////////
+    // longCheck - checks to see if there are any long range capable units
+    // involved in the combat
+    ////////////////////////////////////////////////////////////////////////////
     function longCheck(state) {
       var long = false;
       state.targets.long = [];
@@ -423,11 +424,22 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
       turnCleanup(state);
     }
 
-    /* processUnit - perform actions that the unit can take
-    */
+    ////////////////////////////////////////////////////////////////////////////
+    // processUnit - perform actions that the unit can take
+    ////////////////////////////////////////////////////////////////////////////
     function processUnit(unit,state) {
       // Get the list of attacks a unit can make
-      var actions = _.filter(unit.components,'attack');
+      var actions = _.filter(unit.components,function(c) {
+        var attack = false;
+        if(_.has(c,"attack")) {
+          // The component is an attack.
+          // Check if there is ammo remaining or if it doesn't use ammo
+          if((_.has(c.attack,"ammo") && c.attack.ammo > 0) || !_.has(c.attack,"ammo")) {
+            attack = true;
+          }
+        }
+        return attack;
+      });
       unit.state.initStats = unitStats(unit);
 
       // Choose a target or targets
@@ -438,10 +450,8 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
         attacks.push({
           actor: unit.uuid,
           target: t,
-          action: a.name
+          action: a
         });
-        //var msg = log(`${unit.info.name} is targeting ${target.info.name}`,"log-entry-action")
-        //state.log.push(msg);
       });
 
       state.attacks = _.concat(state.attacks,attacks);
@@ -454,7 +464,7 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
 
         var actor = state.targets.master[a.actor];
         var target = state.targets.master[a.target];
-        var attack = _.filter(actor.components,['name',a.action])[0].attack;
+        var attack = a.action.attack;
 
         // I should determine target here not earlier....the earlier loop is unnecessary!
         //var msg = log(`${actor.info.name} is attacking ${target.info.name} with ${a.action}`,"log-entry-green");
@@ -470,6 +480,7 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
         });
 
         a.results = results.results;
+        console.log(actor.info.name,a.action.type,a.action.attack.ammo);
 
         if(results.results.success) {
           var msg = log(`${actor.info.name} fires on ${target.info.name} scoring ${results.results.damage} hits!`,"log-entry-green");
@@ -482,8 +493,9 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
       });
     }
 
-    /* selectTarget -
-    */
+    ////////////////////////////////////////////////////////////////////////////
+    // selectTarget -
+    ////////////////////////////////////////////////////////////////////////////
     function selectTarget(unit,state) {
       var t = _.sample(state.targets[unit.team]);
       var target = state.targets.master[t];
@@ -498,13 +510,14 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
       };
     }
 
-    /* applyEffects - make the things stick!
-    */
+    ////////////////////////////////////////////////////////////////////////////
+    // applyEffects - make the things stick!
+    ////////////////////////////////////////////////////////////////////////////
     function applyEffects(state) {
       // Do turn cleanup
       _.forEach(state.attacks,function(attack) {
         // Apply damage as necessary
-        if(attack.results.damage) {
+        if(attack.results.success) {
           var target = state.targets.master[attack.target];
           // Get all health pools
           var pools = target.state.pools;
@@ -538,8 +551,9 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
       });
     }
 
-    /* turnCleanup - end of turn house keeping
-    */
+    ////////////////////////////////////////////////////////////////////////////
+    // turnCleanup - end of turn house keeping
+    ////////////////////////////////////////////////////////////////////////////
     function turnCleanup(state) {
       // Decide who is now dead
       var removal = [];
