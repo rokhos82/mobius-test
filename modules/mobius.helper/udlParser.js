@@ -252,6 +252,7 @@
           shield.crit = "shield",
           shield.health = {
             pool: parts.shields,
+            transfer: true,
             priority: 2
           }
           shield.channel = "shield";

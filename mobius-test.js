@@ -30,7 +30,7 @@
 
     $ctrl.critTable = initializeCritTable();
 
-    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v 0.2.2";
+    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v 0.2.3";
     $ctrl.output = [];
     $ctrl.combatLog = {
       turns: []
@@ -64,7 +64,7 @@ Red One 3,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
     $ctrl.blueExample = `{"name":"Blue Two","units":[{"name": "Blue Two 1","size": 6,"type": "starship","components": [{"name": "hull","crit": "unitBase","health": {"pool": 9,"priority": 1},"presence": {"magnitude": 6,"channel": 1}},{"name": "shield","crit": "shield","health": {"pool": 2,"priority": 2,"transfer": false},"energy": {"draw": 2}},{"name": "beam 1","crit": "battery","attack": {"volley": 7,"target": 350},"energy": {"draw": 7}},{"name": "beam 2","crit": "battery","attack": {"volley": 7,"target": 350},"energy": {"draw": 7}},{"name": "stl","crit": "engine","effects": {"defense": 150}},{"name": "lrs","crit": "sensor","sensor": {"strength": 1,"channel": 1,"resolution": 1},"energy": {"draw": 1}},{"name": "reactor","crit": "powerPlant","energy": {"capacity": 72}}]}]}`;
 
     $ctrl.redFleetUdl = `Red 1,75,4,36
-Red 1-1,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
+Red 1-1,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][1 mis00A1 target 100 ammo 1] DEFENSE 15
 Red 1-2,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
 Red 1-3,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
 Red 1-4,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15`;
@@ -458,17 +458,10 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
 
       // Attack said target(s)
       _.forEach(attacks,function(a) {
-        // Roll for to hit and then damage
-        var hit = _.random(1,1000,false);
-        var def = _.random(1,1000,false);
-
+        // Extract information from the attack object
         var actor = state.targets.master[a.actor];
         var target = state.targets.master[a.target];
         var attack = a.action.attack;
-
-        // I should determine target here not earlier....the earlier loop is unnecessary!
-        //var msg = log(`${actor.info.name} is attacking ${target.info.name} with ${a.action}`,"log-entry-green");
-        //state.log.push(msg);
 
         // Hand off the attack to the combat helper
         var results = combat.doAttack({
@@ -480,7 +473,6 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
         });
 
         a.results = results.results;
-        console.log(actor.info.name,a.action.type,a.action.attack.ammo);
 
         if(results.results.success) {
           var msg = log(`${actor.info.name} fires on ${target.info.name} scoring ${results.results.damage} hits!`,"log-entry-green");
