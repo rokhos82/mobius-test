@@ -97,7 +97,7 @@
      *  God Mode - the damage is applied directly to the target without other effects
      *      mode.god = true
     */
-    services.doDamage = function(data) {
+    services.calcDamage = function(data) {
       var target = data.target;
       var damage = data.damage;
 
@@ -112,7 +112,7 @@
       // Displacement is considered first, then if the attack did actually land,
       // deflect is used to remove a constant amount.
 
-    if(!data.mode.god) {
+      if(!data.mode.god) {
         // Check if the unit has displacement
         var missed = false;
         if(_.isNumber(target.state.displacement)) {
@@ -121,7 +121,7 @@
 
           // Did the hit really miss!?
           missed = (toMiss < target.state.displacement);
-          results.displaced = true;
+          results.displaced = missed;
         }
         // Check if we missed again...
         if(!missed) {
@@ -137,11 +137,9 @@
           results.damage = damage;
         }
       }
-
-      // Apply the damage to the target
-      var remainder = damage;
-      _.forEach(target.pools,function(pool) {
-      });
+      else {
+        results.damage = damage;
+      }
 
       // Return the results and any errors
       return {
@@ -149,6 +147,10 @@
         results: results
       };
     };
+
+    ////////////////////////////////////////////////////////////////////////////
+    // applyDamage
+    ////////////////////////////////////////////////////////////////////////////
 
     return services;
   }
