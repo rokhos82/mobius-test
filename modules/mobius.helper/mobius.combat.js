@@ -92,7 +92,7 @@
       };
     };
 
-    /* doDamage - This function applies damage to a unit.
+    /* calcDamage - This function calculates damage to a unit.
      * Special Modes
      *  God Mode - the damage is applied directly to the target without other effects
      *      mode.god = true
