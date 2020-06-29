@@ -11,6 +11,7 @@
      * apply it to a target.  This function is channel aware.
     */
     services.doAttack = function(data) {
+      console.log(`MOBIUS: Entering doAttack()`);
       var errors = [];
       var results = {
         success: false
@@ -92,12 +93,14 @@
       };
     };
 
-    /* calcDamage - This function calculates damage to a unit.
-     * Special Modes
-     *  God Mode - the damage is applied directly to the target without other effects
-     *      mode.god = true
-    */
+    ////////////////////////////////////////////////////////////////////////////
+    // calcDamage - This function calculates damage to a unit.
+    // Special Modes
+    //  * God Mode - the damage is applied directly to the target without modification
+    //      mode.god = true
+    ////////////////////////////////////////////////////////////////////////////
     services.calcDamage = function(data) {
+      console.log(`MOBIUS: Entering calcDamage()`);
       var target = data.target;
       var damage = data.damage;
 
@@ -149,8 +152,12 @@
     };
 
     ////////////////////////////////////////////////////////////////////////////
-    // applyDamage
+    // applyDamage - This function applies the damage to the target taking into
+    //    consideration hitpoint poools
     ////////////////////////////////////////////////////////////////////////////
+    services.applyDamage(data) {
+      console.log(`MOBIUS: Entering applyDamage()`);
+    }
 
     return services;
   }

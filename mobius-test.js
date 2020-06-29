@@ -524,6 +524,7 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
           // Get all health pools
           var pools = target.state.pools;
           var remainder = attack.results.damage;
+          console.log(`%cMOBIUS: Applying ${remainder} damage to ${target.info.name}`,'color: red;');
           // If there are any hitpoints left in a pool, apply damage
           _.forEach(pools,function(p) {
             var deflect = p.deflect;
@@ -547,8 +548,6 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
               if(!p.transfer) {
                 remainder = 0;
               }
-
-              console.log(`MOBIUS: Applying ${remainder} to ${target.info.name}`);
             }
           });
         }
