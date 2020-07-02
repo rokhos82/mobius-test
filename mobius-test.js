@@ -424,7 +424,7 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
 
       // Determine and apply the final results of the actions queue from
       // above
-      applyEffects(state);
+      applyEffects2(state);
 
       // Cleanup dead units and anything else
       turnCleanup(state);
@@ -550,6 +550,26 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
               }
             }
           });
+        }
+      });
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // applyEffects2 - make the things stick!  but with functions!
+    ////////////////////////////////////////////////////////////////////////////
+    function applyEffects2(state) {
+      console.log(`MOBIUS: Entering applyEffects2()`);
+      // Do turn cleanup
+      _.forEach(state.attacks,function(attack) {
+        // Calculate the damage that is applied to the targets
+        console.log(attack.results)
+        if(attack.results.success) {
+          var results = combat.calcDamage({
+                target: attack.target,
+                damage: attack.results.damage
+          });
+          _.merge(attack.results,results);
+          console.log(attack.results);
         }
       });
     }

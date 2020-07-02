@@ -115,10 +115,11 @@
       // Displacement is considered first, then if the attack did actually land,
       // deflect is used to remove a constant amount.
 
-      if(!data.mode.god) {
+
+      if(!_.has(data,'mode.god') || !data.mode.god) {
         // Check if the unit has displacement
         var missed = false;
-        if(_.isNumber(target.state.displacement)) {
+        if(_.has(target,'state.displacement') && _.isNumber(target.state.displacement)) {
           // Roll the chance to miss
           var toMiss = _.random(1,1000,false);
 
@@ -129,8 +130,11 @@
         // Check if we missed again...
         if(!missed) {
           // Does the unit posses deflect?
-          var block = _.isNumber(target.state.deflect) ? target.state.deflect : 0;
-          results.blocked = block;
+          var block =  0;
+          if(_.has(target,'state.deflect') && _.isNumber(target.state.deflect)) {
+            block = target.state.deflect;
+            results.blocked = block;
+          }
 
           // Determine damage after deflect
           damage -= block;
@@ -155,7 +159,7 @@
     // applyDamage - This function applies the damage to the target taking into
     //    consideration hitpoint poools
     ////////////////////////////////////////////////////////////////////////////
-    services.applyDamage(data) {
+    services.applyDamage = function(data) {
       console.log(`MOBIUS: Entering applyDamage()`);
     }
 
