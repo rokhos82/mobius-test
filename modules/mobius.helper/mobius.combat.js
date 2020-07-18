@@ -160,7 +160,41 @@
     //    consideration hitpoint poools
     ////////////////////////////////////////////////////////////////////////////
     services.applyDamage = function(data) {
+      console.group(`applyDamage`);
       console.log(`MOBIUS: Entering applyDamage()`);
+      console.log(`Arguments`,arguments);
+
+      let target = data.target;
+      let results = data.results;
+
+      let pools = target.state.pools;
+      let remainder = results.damage;
+
+      _.forEach(pools,(p) => {
+        let deflect = p.deflect;
+        let dmg = remainder - deflect;
+        remainder = dmg > 0 ? dmg : 0;
+
+        if(remainder > 0 && p.remaining > 0) {
+          // There is damage left and the pool has hitpoints apply it
+          if(p.remaining > remainder) {
+            p.remaining -= remainder;
+            remainder = 0;
+          }
+          else {
+            remainder -= p.remaining;
+            p.remaining = 0;
+          }
+
+          // If the pool allows for transfer, reset the remainder value
+          if(!p.transfer) {
+            remainder = 0;
+          }
+        }
+      });
+
+      console.log(`MOBIUS: Exiting applyDamage()`);
+      console.groupEnd();
     }
 
     return services;

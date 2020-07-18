@@ -571,7 +571,7 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
           _.merge(attack.results,results);
           console.log(attack.results);
           combat.applyDamage({
-            target: attack.target,
+            target: state.targets.master[attack.target],
             results: attack.results
           });
         }
