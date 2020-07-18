@@ -135,8 +135,10 @@
         }
         // Check if we missed again...
         if(!missed) {
-          // Does the unit posses deflect?
-          var block =  0;
+          // Does the unit posses deflect?  This should be done at damage apply
+          // as some hitpoint pools can transfer to others and which pool
+          // has highest priority.
+          /*var block =  0;
           if(_.has(target,'state.deflect') && _.isNumber(target.state.deflect)) {
             block = target.state.deflect;
             results.blocked = block;
@@ -144,11 +146,11 @@
 
           // Determine damage after deflect
           damage -= block;
-          damage = damage < 0 ? 0 : damage;
+          damage = damage < 0 ? 0 : damage;//*/
 
           // Save the end damage to the result set
           results.damage = damage;
-          results.block = block;
+          //results.block = block;
         }
       }
       else {
