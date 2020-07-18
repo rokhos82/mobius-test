@@ -11,7 +11,9 @@
      * apply it to a target.  This function is channel aware.
     */
     services.doAttack = function(data) {
-      console.log(`MOBIUS: Entering doAttack()`);
+      console.groupCollapsed(`mobius.helper.combat - doAttack()`);
+      console.log(`Arguments`,arguments);
+
       var errors = [];
       var results = {
         success: false
@@ -87,6 +89,8 @@
         }
       }
 
+      console.groupEnd();
+
       return {
         errors: errors,
         results: results
@@ -100,7 +104,9 @@
     //      mode.god = true
     ////////////////////////////////////////////////////////////////////////////
     services.calcDamage = function(data) {
-      console.log(`MOBIUS: Entering calcDamage()`);
+      console.groupCollapsed(`mobius.helper.combat - calcDamage()`);
+      console.log(`Arguments`,arguments);
+
       var target = data.target;
       var damage = data.damage;
 
@@ -142,11 +148,14 @@
 
           // Save the end damage to the result set
           results.damage = damage;
+          results.block = block;
         }
       }
       else {
         results.damage = damage;
       }
+
+      console.groupEnd();
 
       // Return the results and any errors
       return {
@@ -160,8 +169,7 @@
     //    consideration hitpoint poools
     ////////////////////////////////////////////////////////////////////////////
     services.applyDamage = function(data) {
-      console.group(`applyDamage`);
-      console.log(`MOBIUS: Entering applyDamage()`);
+      console.groupCollapsed(`mobius.helper.combat - applyDamage()`);
       console.log(`Arguments`,arguments);
 
       let target = data.target;
@@ -193,7 +201,6 @@
         }
       });
 
-      console.log(`MOBIUS: Exiting applyDamage()`);
       console.groupEnd();
     }
 

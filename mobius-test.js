@@ -30,7 +30,7 @@
 
     $ctrl.critTable = initializeCritTable();
 
-    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v 0.2.3";
+    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v 0.2.4";
     $ctrl.output = [];
     $ctrl.combatLog = {
       turns: []
@@ -558,7 +558,9 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
     // applyEffects2 - make the things stick!  but with functions!
     ////////////////////////////////////////////////////////////////////////////
     function applyEffects2(state) {
-      console.log(`MOBIUS: Entering applyEffects2()`);
+      console.groupCollapsed(`mobius-test - applyEffect2()`)
+      console.log(`Arguemtns`,arguments);
+
       // Do turn cleanup
       _.forEach(state.attacks,function(attack) {
         // Calculate the damage that is applied to the targets
@@ -576,6 +578,8 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
           });
         }
       });
+
+      console.groupEnd();
     }
 
     ////////////////////////////////////////////////////////////////////////////
