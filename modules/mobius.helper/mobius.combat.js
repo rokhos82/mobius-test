@@ -11,6 +11,9 @@
      * apply it to a target.  This function is channel aware.
     */
     services.doAttack = function(data) {
+      console.groupCollapsed(`mobius.helper.combat - doAttack()`);
+      console.log(`Arguments`,arguments);
+
       var errors = [];
       var results = {
         success: false
@@ -74,9 +77,19 @@
             var damage = _.round(attack.volley * damageRoll / 1000);
             results.damage = damage;
           }
+
+          // Spend one ammo point
+          if(_.has(attack,"ammo")) {
+            attack.ammo--;
+            results.ammo = attack.ammo;
+          }
         }
-        else {}
+        else {
+          results.success = false;
+        }
       }
+
+      console.groupEnd();
 
       return {
         errors: errors,
@@ -84,12 +97,16 @@
       };
     };
 
-    /* doDamage - This function applies damage to a unit.
-     * Special Modes
-     *  God Mode - the damage is applied directly to the target without other effects
-     *      mode.god = true
-    */
-    services.doDamage = function(data) {
+    ////////////////////////////////////////////////////////////////////////////
+    // calcDamage - This function calculates damage to a unit.
+    // Special Modes
+    //  * God Mode - the damage is applied directly to the target without modification
+    //      mode.god = true
+    ////////////////////////////////////////////////////////////////////////////
+    services.calcDamage = function(data) {
+      console.groupCollapsed(`mobius.helper.combat - calcDamage()`);
+      console.log(`Arguments`,arguments);
+
       var target = data.target;
       var damage = data.damage;
 
@@ -104,22 +121,26 @@
       // Displacement is considered first, then if the attack did actually land,
       // deflect is used to remove a constant amount.
 
-    if(!data.mode.god) {
+
+      if(!_.has(data,'mode.god') || !data.mode.god) {
         // Check if the unit has displacement
         var missed = false;
-        if(_.isNumber(target.state.displacement)) {
+        if(_.has(target,'state.displacement') && _.isNumber(target.state.displacement)) {
           // Roll the chance to miss
           var toMiss = _.random(1,1000,false);
 
           // Did the hit really miss!?
           missed = (toMiss < target.state.displacement);
-          results.displaced = true;
+          results.displaced = missed;
         }
         // Check if we missed again...
         if(!missed) {
           // Does the unit posses deflect?
-          var block = _.isNumber(target.state.deflect) ? target.state.deflect : 0;
-          results.blocked = block;
+          var block =  0;
+          if(_.has(target,'state.deflect') && _.isNumber(target.state.deflect)) {
+            block = target.state.deflect;
+            results.blocked = block;
+          }
 
           // Determine damage after deflect
           damage -= block;
@@ -127,12 +148,14 @@
 
           // Save the end damage to the result set
           results.damage = damage;
+          results.block = block;
         }
       }
+      else {
+        results.damage = damage;
+      }
 
-      // Apply the damage to the target
-      var remainder = damage;
-      _.forEach(target.pools,function() {});
+      console.groupEnd();
 
       // Return the results and any errors
       return {
@@ -140,6 +163,46 @@
         results: results
       };
     };
+
+    ////////////////////////////////////////////////////////////////////////////
+    // applyDamage - This function applies the damage to the target taking into
+    //    consideration hitpoint poools
+    ////////////////////////////////////////////////////////////////////////////
+    services.applyDamage = function(data) {
+      console.groupCollapsed(`mobius.helper.combat - applyDamage()`);
+      console.log(`Arguments`,arguments);
+
+      let target = data.target;
+      let results = data.results;
+
+      let pools = target.state.pools;
+      let remainder = results.damage;
+
+      _.forEach(pools,(p) => {
+        let deflect = p.deflect;
+        let dmg = remainder - deflect;
+        remainder = dmg > 0 ? dmg : 0;
+
+        if(remainder > 0 && p.remaining > 0) {
+          // There is damage left and the pool has hitpoints apply it
+          if(p.remaining > remainder) {
+            p.remaining -= remainder;
+            remainder = 0;
+          }
+          else {
+            remainder -= p.remaining;
+            p.remaining = 0;
+          }
+
+          // If the pool allows for transfer, reset the remainder value
+          if(!p.transfer) {
+            remainder = 0;
+          }
+        }
+      });
+
+      console.groupEnd();
+    }
 
     return services;
   }

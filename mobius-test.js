@@ -30,7 +30,7 @@
 
     $ctrl.critTable = initializeCritTable();
 
-    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v 0.2.2";
+    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v 0.2.4";
     $ctrl.output = [];
     $ctrl.combatLog = {
       turns: []
@@ -63,8 +63,8 @@ Red One 3,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][7 target 35] DEFENSE 15`;
 
     $ctrl.blueExample = `{"name":"Blue Two","units":[{"name": "Blue Two 1","size": 6,"type": "starship","components": [{"name": "hull","crit": "unitBase","health": {"pool": 9,"priority": 1},"presence": {"magnitude": 6,"channel": 1}},{"name": "shield","crit": "shield","health": {"pool": 2,"priority": 2,"transfer": false},"energy": {"draw": 2}},{"name": "beam 1","crit": "battery","attack": {"volley": 7,"target": 350},"energy": {"draw": 7}},{"name": "beam 2","crit": "battery","attack": {"volley": 7,"target": 350},"energy": {"draw": 7}},{"name": "stl","crit": "engine","effects": {"defense": 150}},{"name": "lrs","crit": "sensor","sensor": {"strength": 1,"channel": 1,"resolution": 1},"energy": {"draw": 1}},{"name": "reactor","crit": "powerPlant","energy": {"capacity": 72}}]}]}`;
 
-    $ctrl.redFleetUdl = `Red 1,1,2,3,4
-Red 1-1,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
+    $ctrl.redFleetUdl = `Red 1,75,4,36
+Red 1-1,7,7,2,2,0,0,9,9,0,0,0,[7 target 35][1 mis00A1 target 100 ammo 1] DEFENSE 15
 Red 1-2,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
 Red 1-3,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15
 Red 1-4,7,7,2,2,0,0,9,9,0,0,0,[7 target 35] DEFENSE 15`;
@@ -100,7 +100,7 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
 
       // Start the main combat loop
       $ctrl.combatLog.turns = doCombat(environment);
-      console.log($ctrl.combatLog);
+      //console.log($ctrl.combatLog);
 
       // Finish up combat logs
       $ctrl.displayResults = true;
@@ -236,6 +236,9 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
 
       environment.log = [];
       environment.attacks = [];
+      environment.info = {
+        turn: 0
+      };
 
       var done = false;
       var count = 0;
@@ -268,6 +271,7 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
           done = true;
         }
         $ctrl.output.push(log(`Begin Turn ${count}`,"log-entry-important"));
+        state.info.turn = count;
 
         // Do combat turn
         combatTurn(state,prevState);
@@ -381,9 +385,10 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
       return done;
     }
 
-    /* longCheck - checks to see if there are any long range capable units
-     * involved in the combat
-     */
+    ////////////////////////////////////////////////////////////////////////////
+    // longCheck - checks to see if there are any long range capable units
+    // involved in the combat
+    ////////////////////////////////////////////////////////////////////////////
     function longCheck(state) {
       var long = false;
       state.targets.long = [];
@@ -408,26 +413,40 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
     //  combatTurn - this is the main combat event loop processor //////////////
     ////////////////////////////////////////////////////////////////////////////
     function combatTurn(state,prevState) {
+      console.log(`%cMOBIUS: Entering combatTurn(${state.info.turn})`,'color: orange;');
       // Loop through all of the active units and process their turns
       _.forEach(state.targets.active,function(u) {
         var unit = state.targets.master[u];
+        console.log(`MOBIUS: Working on unit ${unit.info.name}`);
 
         processUnit(unit,state);
       });
 
       // Determine and apply the final results of the actions queue from
       // above
-      applyEffects(state);
+      applyEffects2(state);
 
       // Cleanup dead units and anything else
       turnCleanup(state);
     }
 
-    /* processUnit - perform actions that the unit can take
-    */
+    ////////////////////////////////////////////////////////////////////////////
+    // processUnit - perform actions that the unit can take
+    ////////////////////////////////////////////////////////////////////////////
     function processUnit(unit,state) {
+      console.log(`MOBIUS: Entering processUnit(${unit.info.name})`);
       // Get the list of attacks a unit can make
-      var actions = _.filter(unit.components,'attack');
+      var actions = _.filter(unit.components,function(c) {
+        var attack = false;
+        if(_.has(c,"attack")) {
+          // The component is an attack.
+          // Check if there is ammo remaining or if it doesn't use ammo
+          if((_.has(c.attack,"ammo") && c.attack.ammo > 0) || !_.has(c.attack,"ammo")) {
+            attack = true;
+          }
+        }
+        return attack;
+      });
       unit.state.initStats = unitStats(unit);
 
       // Choose a target or targets
@@ -438,27 +457,19 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
         attacks.push({
           actor: unit.uuid,
           target: t,
-          action: a.name
+          action: a
         });
-        //var msg = log(`${unit.info.name} is targeting ${target.info.name}`,"log-entry-action")
-        //state.log.push(msg);
       });
 
       state.attacks = _.concat(state.attacks,attacks);
 
       // Attack said target(s)
       _.forEach(attacks,function(a) {
-        // Roll for to hit and then damage
-        var hit = _.random(1,1000,false);
-        var def = _.random(1,1000,false);
-
+        // Extract information from the attack object
         var actor = state.targets.master[a.actor];
         var target = state.targets.master[a.target];
-        var attack = _.filter(actor.components,['name',a.action])[0].attack;
-
-        // I should determine target here not earlier....the earlier loop is unnecessary!
-        //var msg = log(`${actor.info.name} is attacking ${target.info.name} with ${a.action}`,"log-entry-green");
-        //state.log.push(msg);
+        var attack = a.action.attack;
+        console.log(`MOBIUS: ${actor.info.name} is targeting ${target.info.name}`);
 
         // Hand off the attack to the combat helper
         var results = combat.doAttack({
@@ -482,9 +493,11 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
       });
     }
 
-    /* selectTarget -
-    */
+    ////////////////////////////////////////////////////////////////////////////
+    // selectTarget -
+    ////////////////////////////////////////////////////////////////////////////
     function selectTarget(unit,state) {
+      console.log(`MOBIUS: Entering selectTarget for ${unit.name.info}`);
       var t = _.sample(state.targets[unit.team]);
       var target = state.targets.master[t];
 
@@ -498,17 +511,20 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
       };
     }
 
-    /* applyEffects - make the things stick!
-    */
+    ////////////////////////////////////////////////////////////////////////////
+    // applyEffects - make the things stick!
+    ////////////////////////////////////////////////////////////////////////////
     function applyEffects(state) {
+      console.log(`MOBIUS: Entering applyEffects()`);
       // Do turn cleanup
       _.forEach(state.attacks,function(attack) {
         // Apply damage as necessary
-        if(attack.results.damage) {
+        if(attack.results.success) {
           var target = state.targets.master[attack.target];
           // Get all health pools
           var pools = target.state.pools;
           var remainder = attack.results.damage;
+          console.log(`%cMOBIUS: Applying ${remainder} damage to ${target.info.name}`,'color: red;');
           // If there are any hitpoints left in a pool, apply damage
           _.forEach(pools,function(p) {
             var deflect = p.deflect;
@@ -538,9 +554,39 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
       });
     }
 
-    /* turnCleanup - end of turn house keeping
-    */
+    ////////////////////////////////////////////////////////////////////////////
+    // applyEffects2 - make the things stick!  but with functions!
+    ////////////////////////////////////////////////////////////////////////////
+    function applyEffects2(state) {
+      console.groupCollapsed(`mobius-test - applyEffect2()`)
+      console.log(`Arguemtns`,arguments);
+
+      // Do turn cleanup
+      _.forEach(state.attacks,function(attack) {
+        // Calculate the damage that is applied to the targets
+        console.log(attack.results)
+        if(attack.results.success) {
+          var results = combat.calcDamage({
+                target: attack.target,
+                damage: attack.results.damage
+          });
+          _.merge(attack.results,results);
+          console.log(attack.results);
+          combat.applyDamage({
+            target: state.targets.master[attack.target],
+            results: attack.results
+          });
+        }
+      });
+
+      console.groupEnd();
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // turnCleanup - end of turn house keeping
+    ////////////////////////////////////////////////////////////////////////////
     function turnCleanup(state) {
+      console.log(`MOBIUS: Entering turnCleanup()`);
       // Decide who is now dead
       var removal = [];
 

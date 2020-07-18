@@ -308,7 +308,7 @@ container {
 
 .results-table .results-table-head {
   font-variant: small-caps;
-  background-color: #454545;
+  background-color: darkslategrey;
 }
 
 .results-table tr:hover {
