@@ -30,7 +30,7 @@
 
     $ctrl.critTable = initializeCritTable();
 
-    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v 0.2.4";
+    $ctrl.title = "Mobius Testbed - CombatEngine Main Loop - v 0.2.5";
     $ctrl.output = [];
     $ctrl.combatLog = {
       turns: []
@@ -493,6 +493,44 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
       });
     }
 
+    /**
+    * This function processes the turn for a single unit
+    * @param {object} unit - the unit to be processed
+    * @param {object} state - the current state of the simulation
+    */
+    function processUnit2(unit,state) {
+      console.groupCollapsed(`mobius-test - processUnit2(unit,state)`);
+      console.log(`unit`,unit);
+      console.log(`state`,state);
+
+      // Get the list of attacks the unit can make.  This list is modeled in
+      // the components of the unit
+      let actions = _.filter(unit.components,(c) => {
+        let attack = false;
+        if(_.has(c,"attack")) {
+          // The component is an attack.
+          // The attack will NOT get added to the list if any of the following
+          // are true
+          //  ammo == 0
+          //  offline == TRUE
+          if(_.has(c.attack,"ammo") && c.attack.ammo > 0){
+            // The attack has ammo and there is at least 1 remaining
+            attack = true;
+          }
+          else if(!_.has(c.attack,"ammo")) {
+            // The attack does not have an ammo tag
+            attack = true;
+          }
+          if(_.has(c.attack,"offline")) {
+            // The attack is offline.  Don't do the attack.
+            attack = false;
+          }
+        }
+      });
+
+      console.groupEnd();
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // selectTarget -
     ////////////////////////////////////////////////////////////////////////////
@@ -608,7 +646,18 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
             unit.state.dead = true;
           }
           else if(crit.action === "dmg") {
-            let results = calcDamage();
+            console.info(crit);
+            let results = combat.calcDamage({
+              mode: {
+                god: true // crits ignore deflect
+              },
+              target: unit,
+              damage: crit.dmg
+            });
+            combat.applyDamage({
+              target: unit,
+              damage: results.damage
+            });//*/
           }
         });
 
@@ -642,13 +691,27 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
       var ct = {
         maxRoll: 0,
         results: [
-          _.fill([1],{text:`Reactor Core Breach (Ship explodes)`,action:"death"}),
-          _.fill([2,3],{text:`Structural Collapse (+15% damage)`,action:"dmgAmp",dmgAmp:0.15}),
-          _.fill([4,5,6],{text:`Explosion Amidships (+10% damage)`,action:"dmgAmp",dmgAmp:0.1}),
-          _.fill([7,8,9,10,11,12],{text:`Superstructure Hit (+5% damage)`,action:"dmgAmp",dmgAmp:0.05}),
-          _.fill([13,14,15,16,17,18,19,20,21,22,23,24,25],{text:`Generic non-lethal crit +1 damage`,action:"dmg",dmg:1}),
-          _.fill([26,27,28,29,30,31,32,33],{text:`Generic non-lethal crit +2 damage`,action:"dmg",dmg:2}),
-          _.fill([34,35,36,37],{text:`Generic non-leathal crit +3 damage`,action:"dmg",dmg:3})
+          _.fill(Array(1),{text:`Reactor Core Breach (Ship explodes)`,action:"death"}),
+          _.fill(Array(2),{text:`Structural Collapse (+3 damage)`,action:"dmg",dmg:3}),
+          _.fill(Array(2),{text:`Explosion Amidships (+2 damage)`,action:"dmg",dmg:2}),
+          _.fill(Array(2),{text:`Superstructure Hit (+1 damage)`,action:"dmg",dmg:1}),
+          _.fill(Array(2),{text:`Inertial Dampeners Down (+1 damage)`,action:"dmg",dmg:1}),
+          _.fill(Array(4),{text:`Weapons Damaged (Offline until repaired)`,action:"weaponOffline"}),
+          _.fill(Array(2),{text:`Radiation Leak (+5% crew casualties)`,action:"crewDmg"}),
+          _.fill(Array(2),{text:`Coolant Leak (+5% crew casualties)`,action:"crewDmg"}),
+          _.fill(Array(2),{text:`Hull Breach (+5% crew casualties)`,action:"crewDmg"}),
+          _.fill(Array(2),{text:`Main Fusion Reactors Down`,action:"dmg",dmg:1}),
+          _.fill(Array(2),{text:`Auxiliary Fusion Reactors Down`,action:"dmg",dmg:1}),
+          _.fill(Array(4),{text:`Weapon Power Short (Some offline until repaired)`,action:"weaponOffline"}),
+          _.fill(Array(4),{text:`Engine Power Short (Drifting for 1 turns)`,action:"drift",drift:1}),
+          _.fill(Array(2),{text:`Shuttle/Fighter Bay Hit`,action:"none"}),
+          _.fill(Array(2),{text:`Main Fire Control Out (Offile for 1 turn)`,action:"weaponOffline"}),
+          _.fill(Array(2),{text:`Main Scanners Out (Offline for 1 turn)`,action:"weaponOffline"}),
+          _.fill(Array(2),{text:`Maglock/Tractor Beams Down`,action:"none"}),
+          _.fill(Array(2),{text:`Main Bridge Hit (Bridge crew killed, Offline for 1 turn)`,action:"weaponOffline"}),
+          _.fill(Array(2),{text:`Main Engineering Hit (Drifiting for 1 turn)`,action:"drift",drift:1}),
+          _.fill(Array(4),{text:`Warp Engine Hit (No warp movement until repaired)`,action:"noWarp"}),
+          _.fill(Array(2),{text:`Barracks/Cargo Holds Breached (+5% crew casualties)`,action:"crewDmg"})
         ]
       };
 

@@ -166,9 +166,23 @@
       };
     };
 
+    /**
+    * This function takes an actor object and an attack object and computes
+    * the damage done by the attack.
+    * @param {object} actor - the unit object that is doing the attack
+    * @param {object} attack - the attack object that references which attack is being done
+    */
+    services.calcDamage2(actor,attack) {
+      console.groupCollapsed(`mobius.helper.combat - calcDamage(actor,attack)`)
+      console.log(`actor`,actor);
+      console.log(`attack`,attack);
+
+      console.groupEnd();
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // applyDamage - This function applies the damage to the target taking into
-    //    consideration hitpoint poools
+    //    consideration hitpoint pools
     ////////////////////////////////////////////////////////////////////////////
     services.applyDamage = function(data) {
       console.groupCollapsed(`mobius.helper.combat - applyDamage()`);
