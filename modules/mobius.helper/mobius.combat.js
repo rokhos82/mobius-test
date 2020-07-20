@@ -206,6 +206,24 @@
       console.groupEnd();
     }
 
+    /**
+     * This function handles attacks that have a chance of being intercepted
+     * @param {object} target - The target object of the missile attack
+     * @param {object} attack - The attack object describing the missile(s)
+    */
+    services.interceptMissile = function(target,attack) {
+      console.groupCollapsed(`mobius.helper.combat - interceptMissile(target,attack)`);
+      console.log(`Arguments`,target,attack);
+
+      // Get the PD value from the target.  This is in the form of a chance for
+      // the missile to be intercepted.  The percentage is PD/1000.
+
+      let pd = target.state.pd;
+      let r = _.random();
+
+      console.groupEnd();
+    };
+
     return services;
   }
 

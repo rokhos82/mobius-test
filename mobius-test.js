@@ -608,6 +608,7 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
             unit.state.dead = true;
           }
           else if(crit.action === "dmg") {
+            let results = calcDamage();
           }
         });
 
