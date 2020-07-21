@@ -503,6 +503,9 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
       console.log(`unit`,unit);
       console.log(`state`,state);
 
+      // Get the initial stats for the unit.  This is for combat results, mostly.
+      unit.state.initStats = unitStats(unit);
+
       // Get the list of attacks the unit can make.  This list is modeled in
       // the components of the unit
       let actions = _.filter(unit.components,(c) => {
@@ -525,10 +528,71 @@ Blue 1-4,14,14,4,4,0,0,15,15,0,0,0,[14 multi 7 target 35 long] DEFENSE 15 AR 2`;
             // The attack is offline.  Don't do the attack.
             attack = false;
           }
+          return attack;
         }
       });
 
+      // Get targets for the attacks and compile that with the attack information
+      // into an array to get merged into the attacks that the simulation needs
+      // to handle
+      let attacks = [];
+      _.forEach(actions,(a) => {
+        // Get a random target from the target list for the team the unit
+        // is part of
+        let t = _.sample(state.targets[unit.team]);
+
+        // Convert that UUID into a unit object using the state master lists
+        let target = state.targets.master[t];
+
+        // Push the attack/target information into the attacks array
+        attacks.push({
+          actor: unit.uuid,
+          target: t,
+          action: a
+        });
+      });
+
+      // Merge the state attacks list with the current unit attacks.
+      state.attacks = _.concat(state.attacks,attacks);
+
+
       console.groupEnd();
+    }
+
+    /**
+    * This function processes all of the attacks currently setup in the simulation
+    * @param {object} state - the simulation state object
+    */
+    function processAttacks(state) {
+      // Loop through all of the attacks and process them
+      _.forEach(state.attacks,(atk) => {
+        // Get the unit objects from the attack definition
+        let actor = state.targets.master[atk.actor];
+        let target = state.targets.master[atk.target];
+
+        // Get the attack information from the component definition
+        let attack = atk.action.attack;
+
+        // Use the combat helper to handle the mechanics
+        // Setup the attack configuration to use the 50.0% chance of base
+        // to hit.  This then gets modified by DEFENSE and TARGET
+        let results = combat.doAttack({
+          actor: actor,
+          target: target,
+          attack: attack,
+          mode: "limit",
+          limit: 500
+        });
+
+        atk.results = results.results;
+
+        // Process the results and add information to the combat log
+        if(results.results.success) {
+          // The attack was successful.  Log the success.
+          let msg = log(`${actor.info.name} fires on ${target.info.name} scoring ${results.results.damage} hits!`,"log-entry-green");
+          state.log.push(msg);
+        }
+      });
     }
 
     ////////////////////////////////////////////////////////////////////////////
