@@ -172,13 +172,13 @@
     * @param {object} actor - the unit object that is doing the attack
     * @param {object} attack - the attack object that references which attack is being done
     */
-    services.calcDamage2(actor,attack) {
+    services.calcDamage2 = function(actor,attack) {
       console.groupCollapsed(`mobius.helper.combat - calcDamage(actor,attack)`)
       console.log(`actor`,actor);
       console.log(`attack`,attack);
 
       console.groupEnd();
-    }
+    };
 
     ////////////////////////////////////////////////////////////////////////////
     // applyDamage - This function applies the damage to the target taking into
